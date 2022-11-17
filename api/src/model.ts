@@ -28,7 +28,7 @@ interface Database {
   user: UserTable;
 }
 
-export const db = (fileMustExist: boolean = true) =>
+export const database = (fileMustExist: boolean = true) =>
   new Kysely<Database>({
     dialect: new SqliteDialect({
       database: new Sqlite3("db.sqlite", {

@@ -1,6 +1,6 @@
 // import DataloaderPlugin from "@pothos/plugin-dataloader";
 import SchemaBuilder from "@pothos/core";
-import { db } from "./model";
+import { database } from "./model";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -48,7 +48,7 @@ export const schema = builder.toSchema({});
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-const db_ = db(true);
+const db = database(true);
 
 const app = express();
 const httpServer = http.createServer(app);

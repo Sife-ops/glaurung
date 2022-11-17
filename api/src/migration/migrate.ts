@@ -1,13 +1,13 @@
 import { Migrator } from "kysely";
-import { db } from "../model";
+import { database } from "../model";
 import * as migrations from "./migrations";
 
 const migrateToLatest = async () => {
-  db(false); // create file
-  const db_ = db(true);
+  database(false); // create file
+  const db = database(true);
 
   const migrator = new Migrator({
-    db: db_,
+    db: db,
     provider: {
       getMigrations: async () => {
         return migrations;
@@ -31,7 +31,7 @@ const migrateToLatest = async () => {
     process.exit(1);
   }
 
-  await db_.destroy();
+  await db.destroy();
 };
 
 (async () => {
