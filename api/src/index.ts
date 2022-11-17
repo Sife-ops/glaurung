@@ -5,19 +5,19 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import { ApolloServer } from "@apollo/server";
-import { database } from "./model";
+import { database } from "./model/database";
 import { expressMiddleware } from "@apollo/server/express4";
 import { schema } from "./graphql/schema";
 
 (async () => {
   const db = database(true);
-
   const app = express();
   const httpServer = http.createServer(app);
 
   const server = new ApolloServer({
     schema,
   });
+
   await server.start();
 
   app.use(

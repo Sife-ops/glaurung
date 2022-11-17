@@ -1,6 +1,6 @@
 import SchemaBuilder from "@pothos/core";
 import { Kysely } from "kysely";
-import { Database, database } from "../model";
+import { Database, database } from "../model/database";
 
 const db = database(true);
 

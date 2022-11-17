@@ -1,6 +1,6 @@
 import * as migrations from "./migrations";
 import { Migrator } from "kysely";
-import { database } from "../model";
+import { database } from "../model/database";
 
 const migrateToLatest = async () => {
   database(false); // create file
