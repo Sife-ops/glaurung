@@ -1,3 +1,4 @@
+import { __Directive, __Type } from "graphql";
 import { builder } from "../builder";
 import { ServiceType } from "./service";
 
@@ -26,7 +27,13 @@ builder.queryFields((t) => ({
         .execute();
 
       console.log(
-        JSON.stringify({ ctx: { user: ctx.user }, entity: { resolved: res } })
+        JSON.stringify({
+          ctx: { user: ctx.user },
+          entity: { resolved: res },
+          module: {
+            filename: __filename,
+          },
+        })
       );
 
       return res;
