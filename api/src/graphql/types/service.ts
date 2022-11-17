@@ -17,27 +17,36 @@ ServiceType.implement({
   fields: (t) => ({
     id: t.exposeID("id"),
     userId: t.exposeInt("userId"),
+    title: t.exposeString("title"),
 
-    // todo: dataloader
-    fields: t.field({
-      type: [ServiceFieldType],
-      resolve: async (_, __, ctx) => {
-        const res = await ctx.db
+    fields: t.loadableList({
+      type: ServiceFieldType,
+      resolve: (parent) => parent.id,
+      load: async (keys, ctx) => {
+        const serviceFields = await ctx.db
           .selectFrom("serviceField")
+          .where("serviceId", "in", keys)
           .selectAll()
           .execute();
 
-        console.log(
+        const mapped = keys.map((serviceId) =>
+          serviceFields.filter(
+            (serviceField) => serviceField.serviceId === serviceId
+          )
+        );
+
+        // todo: abstraction
+        console.debug(
           JSON.stringify({
+            timestamp: new Date().toISOString(),
+            level: "debug",
             ctx: { user: ctx.user },
-            entity: { resolved: res },
-            module: {
-              filename: __filename,
-            },
+            entity: { resolved: mapped },
+            module: { filename: __filename },
           })
         );
 
-        return res;
+        return mapped;
       },
     }),
   }),

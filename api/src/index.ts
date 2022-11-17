@@ -29,7 +29,7 @@ import { schema } from "./graphql/schema";
           ...ctx,
           db,
           user: {
-            id: 33,
+            id: 1,
             username: "admin",
           },
         };

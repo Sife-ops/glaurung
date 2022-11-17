@@ -26,13 +26,14 @@ builder.queryFields((t) => ({
         .selectAll()
         .execute();
 
-      console.log(
+      // todo: abstraction
+      console.debug(
         JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: "debug",
           ctx: { user: ctx.user },
           entity: { resolved: res },
-          module: {
-            filename: __filename,
-          },
+          module: { filename: __filename },
         })
       );
 

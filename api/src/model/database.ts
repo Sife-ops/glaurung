@@ -3,9 +3,14 @@ import { Kysely, Selectable, SqliteDialect } from "kysely";
 import * as Table from "./entity";
 
 export interface Database {
-  user: Table.UserTable;
-  service: Table.ServiceTable;
-  serviceField: Table.ServiceFieldTable;
+  user: Table.User;
+  service: Table.Service;
+  serviceField: Table.ServiceField;
+  serviceTab: Table.ServiceTag;
+  tab: Table.Tag;
+  serviceProfile: Table.ServiceProfile;
+  profile: Table.Profile;
+  profileField: Table.ProfileField;
 }
 
 export const database = ({ fileMustExist }: { fileMustExist: boolean }) =>

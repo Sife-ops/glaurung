@@ -1,16 +1,47 @@
 import { Generated } from "kysely";
 
-export { UserTable } from "./user";
+export { User } from "./user";
 
-export interface ServiceTable {
+export interface Service {
+  // todo: uuid for ids
   id: Generated<number>;
   userId: number;
+  title: string;
 }
 
-export interface ServiceFieldTable {
+export interface ServiceField {
   id: Generated<number>;
   serviceId: number;
   key: string;
   // todo: type
+  value: string;
+}
+
+export interface ServiceTag {
+  id: Generated<number>;
+  serviceId: number;
+  tagId: number;
+}
+
+export interface Tag {
+  id: Generated<number>;
+  title: string;
+}
+
+export interface ServiceProfile {
+  id: Generated<number>;
+  serviceId: number;
+  profileId: number;
+}
+
+export interface Profile {
+  id: Generated<number>;
+  title: string;
+}
+
+export interface ProfileField {
+  id: Generated<number>;
+  profileId: number;
+  key: string;
   value: string;
 }

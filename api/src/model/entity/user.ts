@@ -1,6 +1,6 @@
 import { Generated } from "kysely";
 
-export interface UserTable {
+export interface User {
   id: Generated<number>;
   username: string;
   password: string;

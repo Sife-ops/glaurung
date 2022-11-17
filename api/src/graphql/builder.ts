@@ -1,4 +1,5 @@
 import SchemaBuilder from "@pothos/core";
+import DataloaderPlugin from '@pothos/plugin-dataloader'
 import { Kysely } from "kysely";
 import { Database, database } from "../model/database";
 
@@ -13,7 +14,7 @@ export const builder = new SchemaBuilder<{
     db: Kysely<Database>;
   };
 }>({
-  // plugins: [DataloaderPlugin],
+  plugins: [DataloaderPlugin],
 });
 
 builder.queryType({});
