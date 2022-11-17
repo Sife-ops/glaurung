@@ -10,7 +10,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { schema } from "./graphql/schema";
 
 (async () => {
-  const db = database(true);
+  const db = database({ fileMustExist: true });
   const app = express();
   const httpServer = http.createServer(app);
 

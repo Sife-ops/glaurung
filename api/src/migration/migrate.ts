@@ -3,8 +3,8 @@ import { Migrator } from "kysely";
 import { database } from "../model/database";
 
 const migrateToLatest = async () => {
-  database(false); // create file
-  const db = database(true);
+  database({ fileMustExist: false }); // create file
+  const db = database({ fileMustExist: true });
 
   const migrator = new Migrator({
     db,
