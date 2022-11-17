@@ -11,7 +11,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("service")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("user_id", "integer", (col) =>
+    .addColumn("userId", "integer", (col) =>
       col.references("user.id").onDelete("cascade").notNull()
     )
     .execute();
@@ -19,7 +19,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("serviceField")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("service_id", "integer", (col) =>
+    .addColumn("serviceId", "integer", (col) =>
       col.references("service.id").onDelete("cascade").notNull()
     )
     .addColumn("key", "varchar", (col) => col.notNull())
@@ -29,10 +29,10 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("serviceTag")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("service_id", "integer", (col) =>
+    .addColumn("serviceId", "integer", (col) =>
       col.references("service.id").onDelete("cascade").notNull()
     )
-    .addColumn("tag_id", "integer", (col) =>
+    .addColumn("tagId", "integer", (col) =>
       // todo: cascade?
       col.references("tag.id").onDelete("cascade").notNull()
     )
@@ -47,10 +47,10 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("serviceProfile")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("service_id", "integer", (col) =>
+    .addColumn("serviceId", "integer", (col) =>
       col.references("service.id").onDelete("cascade").notNull()
     )
-    .addColumn("profile_id", "integer", (col) =>
+    .addColumn("profileId", "integer", (col) =>
       col.references("profile.id").onDelete("cascade").notNull()
     )
     .execute();
@@ -63,7 +63,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("profileField")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("profile_id", "integer", (col) =>
+    .addColumn("profileId", "integer", (col) =>
       col.references("profile.id").onDelete("cascade").notNull()
     )
     .addColumn("key", "varchar", (col) => col.notNull())
