@@ -10,7 +10,7 @@ export interface ServiceTable {
 export interface ServiceFieldTable {
   id: Generated<number>;
   serviceId: number;
-  key: number;
+  key: string;
   // todo: type
-  value: number;
+  value: string;
 }

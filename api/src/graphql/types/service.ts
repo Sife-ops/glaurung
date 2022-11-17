@@ -6,9 +6,9 @@ export const ServiceFieldType =
 ServiceFieldType.implement({
   fields: (t) => ({
     id: t.exposeID("id"),
-    serviceId: t.exposeID("serviceId"),
-    key: t.exposeID("key"),
-    value: t.exposeID("value"),
+    serviceId: t.exposeInt("serviceId"),
+    key: t.exposeString("key"),
+    value: t.exposeString("value"),
   }),
 });
 
@@ -16,7 +16,7 @@ export const ServiceType = builder.objectRef<Row["service"]>("Service");
 ServiceType.implement({
   fields: (t) => ({
     id: t.exposeID("id"),
-    userId: t.exposeID("userId"),
+    userId: t.exposeInt("userId"),
 
     // todo: dataloader
     fields: t.field({
