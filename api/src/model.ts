@@ -27,8 +27,11 @@ interface Database {
   movie: MovieTable;
 }
 
-export const db = new Kysely<Database>({
-  dialect: new SqliteDialect({
-    database: new Sqlite3("db.sqlite"),
-  }),
-});
+export const db = (fileMustExist: boolean = true) =>
+  new Kysely<Database>({
+    dialect: new SqliteDialect({
+      database: new Sqlite3("db.sqlite", {
+        fileMustExist,
+      }),
+    }),
+  });
