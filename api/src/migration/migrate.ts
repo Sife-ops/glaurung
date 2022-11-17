@@ -1,13 +1,13 @@
+import * as migrations from "./migrations";
 import { Migrator } from "kysely";
 import { database } from "../model";
-import * as migrations from "./migrations";
 
 const migrateToLatest = async () => {
   database(false); // create file
   const db = database(true);
 
   const migrator = new Migrator({
-    db: db,
+    db,
     provider: {
       getMigrations: async () => {
         return migrations;

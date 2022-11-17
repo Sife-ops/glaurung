@@ -22,7 +22,7 @@ interface UserTable {
   password: string;
 }
 
-interface Database {
+export interface Database {
   // person: PersonTable;
   // pet: PetTable;
   user: UserTable;
