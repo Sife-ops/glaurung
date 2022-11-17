@@ -5,8 +5,7 @@
     "start": "node ./dist/index.js",
     "dev": "nodemon ./dist/index.js",
     "watch": "tsc -w",
-    "migrate": "node ./dist/migration/migrate.js",
-    "init": "node ./dist/migration/initialize.js"
+    "migrate": "node ./dist/migration/migrate.js"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.2",

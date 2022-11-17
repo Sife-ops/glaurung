@@ -12,16 +12,6 @@ export async function up(db: Kysely<any>): Promise<void> {
   // )
   // .execute();
 
-  await db.schema
-    .createTable("service")
-    .addColumn("id", "serial", (col) => col.primaryKey())
-    // .addColumn("name", "varchar", (col) => col.notNull().unique())
-    .addColumn("user_id", "integer", (col) =>
-      col.references("user.id").onDelete("cascade").notNull()
-    )
-    // .addColumn("species", "varchar", (col) => col.notNull())
-    .execute();
-
   // await db.schema
   //   .createIndex("pet_owner_id_index")
   //   .on("pet")

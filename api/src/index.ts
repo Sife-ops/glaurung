@@ -1,30 +1,17 @@
 import { db } from "./model";
-import { Kysely, FileMigrationProvider } from "kysely";
 
-// async function demo() {
-//   const { id } = await db
-//     .insertInto("person")
-//     .values({ first_name: "Jennifer", gender: "female" })
-//     .returning("id")
-//     .executeTakeFirstOrThrow();
-
-//   await db
-//     .insertInto("pet")
-//     .values({ name: "Catto", species: "cat", owner_id: id })
-//     .execute();
-
-//   const person = await db
-//     .selectFrom("person")
-//     .innerJoin("pet", "pet.owner_id", "person.id")
-//     .select(["first_name", "pet.name as pet_name"])
-//     .where("person.id", "=", id)
-//     .executeTakeFirst();
-
-//   if (person) {
-//     person.pet_name;
-//   }
-// }
+const db_ = db(true);
 
 (async () => {
   console.log("hello");
+
+  const result = await db_
+    .insertInto("user")
+    .values({
+      username: "yeah",
+      password: "pass",
+    })
+    .executeTakeFirst();
+
+  console.log(result);
 })();
