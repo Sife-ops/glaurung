@@ -1,5 +1,5 @@
 import Sqlite3 from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
+import { Kysely, Selectable, SqliteDialect } from "kysely";
 import { UserTable, ServiceTable } from "./entity";
 
 export interface Database {
@@ -14,3 +14,7 @@ export const database = (fileMustExist: boolean = true) =>
       }),
     }),
   });
+
+export type Row = {
+  [Key in keyof Database]: Selectable<Database[Key]>;
+};

@@ -27,8 +27,11 @@ import { schema } from "./graphql/schema";
       context: async (ctx) => {
         return {
           ...ctx,
-          todo: "context",
           db,
+          user: {
+            id: 33,
+            username: "admin",
+          },
         };
       },
     })

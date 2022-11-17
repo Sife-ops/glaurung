@@ -1,4 +1,5 @@
 import { builder } from "../builder";
+import { ServiceType } from "./service";
 
 builder.queryFields((t) => ({
   hello: t.string({
@@ -12,6 +13,23 @@ builder.queryFields((t) => ({
       //   })
       //   .executeTakeFirst();
       return "hello" + JSON.stringify(a);
+    },
+  }),
+
+  services: t.field({
+    type: [ServiceType],
+    resolve: async (_, __, ctx) => {
+      const res = await ctx.db
+        .selectFrom("service")
+        .where("userId", "=", ctx.user.id)
+        .selectAll()
+        .execute();
+
+      console.log(
+        JSON.stringify({ ctx: { user: ctx.user }, entity: { resolved: res } })
+      );
+
+      return res;
     },
   }),
 }));
