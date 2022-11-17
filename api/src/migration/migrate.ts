@@ -1,18 +1,16 @@
 import { Migrator } from "kysely";
 import { db } from "../model";
-import * as _001 from "./migrations/2022-11-17T00:22:54Z";
+import * as migrations from "./migrations";
 
 const migrateToLatest = async () => {
-  db(false);
+  db(false); // create file
   const db_ = db(true);
 
   const migrator = new Migrator({
     db: db_,
     provider: {
       getMigrations: async () => {
-        return {
-          _001,
-        };
+        return migrations;
       },
     },
   });
