@@ -48,6 +48,9 @@ ProfileType.implement({
           .selectAll()
           .execute();
 
+        // todo: get info from resolve
+        ctx.fileLogger(__filename)("info", { resolved: profileFields });
+
         return keys.map((profileId) =>
           profileFields.filter(
             (profileField) => profileField.profileId === profileId
@@ -75,6 +78,8 @@ ServiceType.implement({
           .selectAll()
           .execute();
 
+        ctx.fileLogger(__filename)("info", { resolved: serviceFields });
+
         return keys.map((serviceId) =>
           serviceFields.filter(
             (serviceField) => serviceField.serviceId === serviceId
@@ -94,6 +99,8 @@ ServiceType.implement({
           .selectAll()
           .execute();
 
+        ctx.fileLogger(__filename)("info", { resolved: serviceTags });
+
         return keys.map((serviceId) =>
           serviceTags.filter((serviceTag) => serviceTag.serviceId === serviceId)
         );
@@ -110,6 +117,8 @@ ServiceType.implement({
           .selectAll()
           .execute();
 
+        ctx.fileLogger(__filename)("info", { resolved: serviceProfiles });
+
         return keys.map((serviceId) =>
           serviceProfiles.filter(
             (serviceProfile) => serviceProfile.serviceId === serviceId
@@ -119,14 +128,3 @@ ServiceType.implement({
     }),
   }),
 });
-
-// // todo: abstract logging
-// console.debug(
-//   JSON.stringify({
-//     timestamp: new Date().toISOString(),
-//     level: "debug",
-//     ctx: { user: ctx.user },
-//     entity: { resolved: mapped },
-//     module: { filename: __filename },
-//   })
-// );

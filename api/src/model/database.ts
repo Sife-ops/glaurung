@@ -8,7 +8,6 @@ export interface Database {
   serviceField: Table.ServiceField;
   serviceTag: Table.ServiceTag;
   tag: Table.Tag;
-  serviceProfile: Table.ServiceProfile;
   profile: Table.Profile;
   profileField: Table.ProfileField;
 }

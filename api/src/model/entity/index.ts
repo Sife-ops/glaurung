@@ -28,12 +28,6 @@ export interface Tag {
   title: string;
 }
 
-export interface ServiceProfile {
-  id: Generated<number>;
-  serviceId: number;
-  profileId: number;
-}
-
 export interface Profile {
   id: Generated<number>;
   userId: number;

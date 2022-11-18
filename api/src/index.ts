@@ -1,10 +1,10 @@
-// import DataloaderPlugin from "@pothos/plugin-dataloader";
 // import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import http from "http";
 import { ApolloServer } from "@apollo/server";
+import { ctxLogger } from "./graphql/logger";
 import { database } from "./model/database";
 import { expressMiddleware } from "@apollo/server/express4";
 import { schema } from "./graphql/schema";
@@ -24,14 +24,19 @@ import { schema } from "./graphql/schema";
     cors(),
     bodyParser.json(),
     expressMiddleware(server, {
-      context: async (ctx) => {
-        return {
-          ...ctx,
+      context: async (context) => {
+        const ctx = {
+          ...context,
           db,
           user: {
             id: 1,
             username: "admin",
           },
+        };
+
+        return {
+          ...ctx,
+          fileLogger: ctxLogger(ctx),
         };
       },
     })

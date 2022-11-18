@@ -19,11 +19,19 @@ builder.queryFields((t) => ({
 
   services: t.field({
     type: [ServiceType],
-    resolve: (_, __, ctx) =>
+    resolve: (_, __, ctx, info) =>
       ctx.db
         .selectFrom("service")
         .where("userId", "=", ctx.user.id)
         .selectAll()
-        .execute(),
+        .execute()
+        .then((data) => {
+          ctx.fileLogger(__filename)(
+            "info",
+            { resolved: data },
+            { path: info.path }
+          );
+          return data;
+        }),
   }),
 }));
