@@ -12,6 +12,14 @@ ServiceFieldType.implement({
   }),
 });
 
+export const TagType = builder.objectRef<Row["tag"]>("Tag");
+TagType.implement({
+  fields: (t) => ({
+    id: t.exposeID("id"),
+    title: t.exposeString("title"),
+  }),
+});
+
 export const ServiceType = builder.objectRef<Row["service"]>("Service");
 ServiceType.implement({
   fields: (t) => ({
@@ -29,25 +37,42 @@ ServiceType.implement({
           .selectAll()
           .execute();
 
-        const mapped = keys.map((serviceId) =>
+        return keys.map((serviceId) =>
           serviceFields.filter(
             (serviceField) => serviceField.serviceId === serviceId
           )
         );
+      },
+    }),
 
-        // todo: abstraction
-        console.debug(
-          JSON.stringify({
-            timestamp: new Date().toISOString(),
-            level: "debug",
-            ctx: { user: ctx.user },
-            entity: { resolved: mapped },
-            module: { filename: __filename },
-          })
+    tags: t.loadableList({
+      type: TagType,
+      resolve: (parent) => parent.id,
+      load: async (keys, ctx) => {
+        const serviceTags = await ctx.db
+          .selectFrom("serviceTag")
+          .innerJoin("tag", "tag.id", "serviceTag.tagId")
+          .where("serviceId", "in", keys)
+          .selectAll()
+          .execute();
+
+        return keys.map((serviceId) =>
+          serviceTags.filter(
+            (serviceTag) => serviceTag.serviceId === serviceId
+          )
         );
-
-        return mapped;
       },
     }),
   }),
 });
+
+// // todo: abstract logging
+// console.debug(
+//   JSON.stringify({
+//     timestamp: new Date().toISOString(),
+//     level: "debug",
+//     ctx: { user: ctx.user },
+//     entity: { resolved: mapped },
+//     module: { filename: __filename },
+//   })
+// );

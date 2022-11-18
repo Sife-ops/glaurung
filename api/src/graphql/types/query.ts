@@ -19,25 +19,11 @@ builder.queryFields((t) => ({
 
   services: t.field({
     type: [ServiceType],
-    resolve: async (_, __, ctx) => {
-      const res = await ctx.db
+    resolve: (_, __, ctx) =>
+      ctx.db
         .selectFrom("service")
         .where("userId", "=", ctx.user.id)
         .selectAll()
-        .execute();
-
-      // todo: abstraction
-      console.debug(
-        JSON.stringify({
-          timestamp: new Date().toISOString(),
-          level: "debug",
-          ctx: { user: ctx.user },
-          entity: { resolved: res },
-          module: { filename: __filename },
-        })
-      );
-
-      return res;
-    },
+        .execute(),
   }),
 }));

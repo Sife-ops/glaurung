@@ -6,8 +6,8 @@ export interface Database {
   user: Table.User;
   service: Table.Service;
   serviceField: Table.ServiceField;
-  serviceTab: Table.ServiceTag;
-  tab: Table.Tag;
+  serviceTag: Table.ServiceTag;
+  tag: Table.Tag;
   serviceProfile: Table.ServiceProfile;
   profile: Table.Profile;
   profileField: Table.ProfileField;
