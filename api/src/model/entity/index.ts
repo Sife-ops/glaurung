@@ -36,6 +36,8 @@ export interface ServiceProfile {
 
 export interface Profile {
   id: Generated<number>;
+  userId: number;
+  serviceId: number;
   title: string;
 }
 

@@ -45,20 +45,26 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("title", "varchar", (col) => col.notNull())
     .execute();
 
-  await db.schema
-    .createTable("serviceProfile")
-    .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("serviceId", "integer", (col) =>
-      col.references("service.id").onDelete("cascade").notNull()
-    )
-    .addColumn("profileId", "integer", (col) =>
-      col.references("profile.id").onDelete("cascade").notNull()
-    )
-    .execute();
+  // await db.schema
+  //   .createTable("serviceProfile")
+  //   .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
+  //   .addColumn("serviceId", "integer", (col) =>
+  //     col.references("service.id").onDelete("cascade").notNull()
+  //   )
+  //   .addColumn("profileId", "integer", (col) =>
+  //     col.references("profile.id").onDelete("cascade").notNull()
+  //   )
+  //   .execute();
 
   await db.schema
     .createTable("profile")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
+    .addColumn("userId", "integer", (col) =>
+      col.references("user.id").onDelete("cascade").notNull()
+    )
+    .addColumn("serviceId", "integer", (col) =>
+      col.references("service.id").onDelete("cascade").notNull()
+    )
     .addColumn("title", "varchar", (col) => col.notNull())
     .execute();
 
