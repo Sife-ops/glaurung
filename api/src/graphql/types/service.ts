@@ -31,21 +31,21 @@ ServiceType.implement({
     fields: t.loadableList({
       type: ServiceFieldType,
       resolve: (parent) => parent.id,
-      load: async (keys, ctx) => {
-        const serviceFields = await ctx.db
+      load: async (keys, ctx) =>
+        ctx.db
           .selectFrom("serviceField")
           .where("serviceId", "in", keys)
           .selectAll()
-          .execute();
-
-        ctx.fileLogger(__filename)("info", { resolved: serviceFields });
-
-        return keys.map((serviceId) =>
-          serviceFields.filter(
-            (serviceField) => serviceField.serviceId === serviceId
-          )
-        );
-      },
+          .execute()
+          .then((data) => {
+            ctx.fileLogger(__filename)("info", { resolved: data });
+            return data;
+          })
+          .then((data) =>
+            keys.map((key) =>
+              data.filter((service) => service.serviceId === key)
+            )
+          ),
     }),
 
     tags: t.loadableList({

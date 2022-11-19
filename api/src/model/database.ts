@@ -1,6 +1,6 @@
+import * as Table from "./entity";
 import Sqlite3 from "better-sqlite3";
 import { Kysely, Selectable, SqliteDialect } from "kysely";
-import * as Table from "./entity";
 
 export interface Database {
   user: Table.User;

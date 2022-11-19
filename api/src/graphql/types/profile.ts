@@ -41,4 +41,3 @@ ProfileType.implement({
     }),
   }),
 });
-
