@@ -1,7 +1,7 @@
 export type FileLogger = (
   filename: string
 ) => (
-  level: string,
+  level: "log" | "info" | "debug" | "error",
   entity: Record<any, any>,
   module_?: Record<any, any>
 ) => void;

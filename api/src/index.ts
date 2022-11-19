@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import { ApolloServer } from "@apollo/server";
+import { GqlContext } from "./graphql/builder";
 import { ctxLogger } from "./graphql/logger";
 import { database } from "./model/database";
 import { expressMiddleware } from "@apollo/server/express4";
@@ -24,19 +25,26 @@ import { schema } from "./graphql/schema";
     cors(),
     bodyParser.json(),
     expressMiddleware(server, {
-      context: async (context) => {
+      context: async (context): Promise<GqlContext> => {
+        const user = {
+          id: 1,
+          username: "admin",
+        };
+
         const ctx = {
           ...context,
           db,
-          user: {
-            id: 1,
-            username: "admin",
-          },
+          user,
         };
 
         return {
           ...ctx,
           fileLogger: ctxLogger(ctx),
+          userSelectFrom: (t) =>
+            db
+              .selectFrom(t)
+              .where("userId", "=", user.id)
+              .orWhere("user.id", "=", user.id),
         };
       },
     })

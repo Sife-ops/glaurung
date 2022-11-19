@@ -20,9 +20,8 @@ builder.queryFields((t) => ({
   services: t.field({
     type: [ServiceType],
     resolve: (_, __, ctx, info) =>
-      ctx.db
-        .selectFrom("service")
-        .where("userId", "=", ctx.user.id)
+      ctx
+        .userSelectFrom("service")
         .selectAll()
         .execute()
         .then((data) => {
