@@ -21,6 +21,11 @@ TagType.implement({
   }),
 });
 
+// todo: too much any
+const mapDataToIds = (ids: any[], key: any) => (data: any) => {
+  return ids.map((id) => data.filter((datum: any) => datum[key] === id));
+};
+
 export const ServiceType = builder.objectRef<Row["service"]>("Service");
 ServiceType.implement({
   fields: (t) => ({
@@ -31,60 +36,38 @@ ServiceType.implement({
     fields: t.loadableList({
       type: ServiceFieldType,
       resolve: (parent) => parent.id,
-      load: async (keys, ctx) =>
+      load: (ids, ctx) =>
         ctx.db
           .selectFrom("serviceField")
-          .where("serviceId", "in", keys)
+          .where("serviceId", "in", ids)
           .selectAll()
           .execute()
-          .then((data) => {
-            ctx.fileLogger(__filename)("info", { resolved: data });
-            return data;
-          })
-          .then((data) =>
-            keys.map((key) =>
-              data.filter((service) => service.serviceId === key)
-            )
-          ),
+          .then(mapDataToIds(ids, "serviceId")),
     }),
 
     tags: t.loadableList({
       type: TagType,
       resolve: (parent) => parent.id,
-      load: async (keys, ctx) => {
-        const serviceTags = await ctx.db
+      load: (ids, ctx) =>
+        ctx.db
           .selectFrom("serviceTag")
           .innerJoin("tag", "tag.id", "serviceTag.tagId")
-          .where("serviceId", "in", keys)
+          .where("serviceId", "in", ids)
           .selectAll()
-          .execute();
-
-        ctx.fileLogger(__filename)("info", { resolved: serviceTags });
-
-        return keys.map((serviceId) =>
-          serviceTags.filter((serviceTag) => serviceTag.serviceId === serviceId)
-        );
-      },
+          .execute()
+          .then(mapDataToIds(ids, "serviceId")),
     }),
 
     profiles: t.loadableList({
       type: ProfileType,
       resolve: (parent) => parent.id,
-      load: async (keys, ctx) => {
-        const serviceProfiles = await ctx.db
+      load: (ids, ctx) =>
+        ctx.db
           .selectFrom("profile")
-          .where("serviceId", "in", keys)
+          .where("serviceId", "in", ids)
           .selectAll()
-          .execute();
-
-        ctx.fileLogger(__filename)("info", { resolved: serviceProfiles });
-
-        return keys.map((serviceId) =>
-          serviceProfiles.filter(
-            (serviceProfile) => serviceProfile.serviceId === serviceId
-          )
-        );
-      },
+          .execute()
+          .then(mapDataToIds(ids, "serviceId")),
     }),
   }),
 });
