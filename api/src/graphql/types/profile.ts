@@ -1,5 +1,6 @@
 import { Row } from "../../model/database";
 import { builder } from "../builder";
+import { mapDataToIds } from "./common";
 
 export const ProfileFieldType =
   builder.objectRef<Row["profileField"]>("ProfileField");
@@ -21,22 +22,13 @@ ProfileType.implement({
     fields: t.loadableList({
       type: ProfileFieldType,
       resolve: (parent) => parent.id,
-      load: async (keys, ctx) => {
-        const profileFields = await ctx.db
+      load: (ids, ctx) =>
+        ctx.db
           .selectFrom("profileField")
-          .where("profileId", "in", keys)
+          .where("profileId", "in", ids)
           .selectAll()
-          .execute();
-
-        // todo: get info from resolve
-        ctx.fileLogger(__filename)("info", { resolved: profileFields });
-
-        return keys.map((profileId) =>
-          profileFields.filter(
-            (profileField) => profileField.profileId === profileId
-          )
-        );
-      },
+          .execute()
+          .then(mapDataToIds(ids, "profileId")),
     }),
   }),
 });

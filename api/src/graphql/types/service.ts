@@ -1,6 +1,8 @@
-import { Row } from "../../model/database";
-import { builder } from "../builder";
 import { ProfileType } from "./profile";
+import { Row } from "../../model/database";
+import { TagType } from "./tag";
+import { builder } from "../builder";
+import { mapDataToIds } from "./common";
 
 export const ServiceFieldType =
   builder.objectRef<Row["serviceField"]>("ServiceField");
@@ -12,19 +14,6 @@ ServiceFieldType.implement({
     value: t.exposeString("value"),
   }),
 });
-
-export const TagType = builder.objectRef<Row["tag"]>("Tag");
-TagType.implement({
-  fields: (t) => ({
-    id: t.exposeID("id"),
-    title: t.exposeString("title"),
-  }),
-});
-
-// todo: too much any
-const mapDataToIds = (ids: any[], key: any) => (data: any) => {
-  return ids.map((id) => data.filter((datum: any) => datum[key] === id));
-};
 
 export const ServiceType = builder.objectRef<Row["service"]>("Service");
 ServiceType.implement({

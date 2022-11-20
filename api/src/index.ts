@@ -5,7 +5,6 @@ import express from "express";
 import http from "http";
 import { ApolloServer } from "@apollo/server";
 import { GqlContext } from "./graphql/builder";
-import { ctxLogger } from "./graphql/logger";
 import { database } from "./model/database";
 import { expressMiddleware } from "@apollo/server/express4";
 import { schema } from "./graphql/schema";
@@ -31,20 +30,10 @@ import { schema } from "./graphql/schema";
           username: "admin",
         };
 
-        const ctx = {
+        return {
           ...context,
           db,
           user,
-        };
-
-        return {
-          ...ctx,
-          fileLogger: ctxLogger(ctx),
-          selectUserServices: () =>
-            db
-              .selectFrom("user")
-              .where("user.id", "=", user.id)
-              .innerJoin("service", "service.userId", "user.id"),
         };
       },
     })

@@ -25,6 +25,7 @@ export interface ServiceTag {
 
 export interface Tag {
   id: Generated<number>;
+  userId: number;
   title: string;
 }
 
