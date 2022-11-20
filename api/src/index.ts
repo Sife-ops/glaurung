@@ -40,11 +40,11 @@ import { schema } from "./graphql/schema";
         return {
           ...ctx,
           fileLogger: ctxLogger(ctx),
-          userSelectFrom: (t) =>
+          selectUserServices: () =>
             db
-              .selectFrom(t)
-              .where("userId", "=", user.id)
-              .orWhere("user.id", "=", user.id),
+              .selectFrom("user")
+              .where("user.id", "=", user.id)
+              .innerJoin("service", "service.userId", "user.id"),
         };
       },
     })

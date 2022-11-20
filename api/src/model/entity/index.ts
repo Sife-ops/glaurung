@@ -30,7 +30,6 @@ export interface Tag {
 
 export interface Profile {
   id: Generated<number>;
-  userId: number;
   serviceId: number;
   title: string;
 }

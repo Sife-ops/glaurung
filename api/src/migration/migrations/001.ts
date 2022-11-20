@@ -59,9 +59,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("profile")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("userId", "integer", (col) =>
-      col.references("user.id").onDelete("cascade").notNull()
-    )
+    // .addColumn("userId", "integer", (col) =>
+    //   col.references("user.id").onDelete("cascade").notNull()
+    // )
     .addColumn("serviceId", "integer", (col) =>
       col.references("service.id").onDelete("cascade").notNull()
     )
@@ -82,5 +82,5 @@ export async function up(db: Kysely<any>): Promise<void> {
 export async function down(db: Kysely<any>): Promise<void> {
   // await db.schema.dropTable("pet").execute();
   // todo: down
-  await db.schema.dropTable("user").execute();
+  // await db.schema.dropTable("user").execute();
 }

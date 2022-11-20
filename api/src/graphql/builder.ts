@@ -15,9 +15,11 @@ export interface GqlContext {
 
   fileLogger: FileLogger;
 
-  userSelectFrom: (
-    t: keyof Database
-  ) => SelectQueryBuilder<From<Database, keyof Database>, keyof Database, {}>;
+  selectUserServices: () => SelectQueryBuilder<
+    From<Database, "user">,
+    "user" | "service",
+    {}
+  >;
 }
 
 export const builder = new SchemaBuilder<{ Context: GqlContext }>({

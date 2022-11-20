@@ -16,7 +16,6 @@ export const ProfileType = builder.objectRef<Row["profile"]>("Profile");
 ProfileType.implement({
   fields: (t) => ({
     id: t.exposeID("id"),
-    userId: t.exposeInt("userId"),
     title: t.exposeString("title"),
 
     fields: t.loadableList({
