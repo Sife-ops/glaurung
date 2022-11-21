@@ -25,6 +25,8 @@ import { schema } from "./graphql/schema";
     bodyParser.json(),
     expressMiddleware(server, {
       context: async (context): Promise<GqlContext> => {
+        console.log(context.req.headers);
+
         const user = {
           id: 1,
           username: "admin",
