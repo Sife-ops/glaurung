@@ -3,6 +3,7 @@ import { ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
 
+// todo: return alphabetical
 builder.mutationFields((t) => ({
   servicesWithTags: t.field({
     type: [ServiceType],
@@ -38,6 +39,10 @@ builder.mutationFields((t) => ({
     },
   }),
 
+  //////////////////////////////////////////////////////////////////////////////
+  // tag ///////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
   createTag: t.field({
     type: TagType,
     args: {
@@ -50,7 +55,7 @@ builder.mutationFields((t) => ({
         .where("tag.title", "=", args.title)
         .selectAll()
         .executeTakeFirst();
-      if (found) throw new Error("tag exists");
+      if (found) throw new Error("duplicate tag title");
       return await ctx.db
         .insertInto("tag")
         .values({ title: args.title, userId: ctx.user.id })
@@ -62,39 +67,87 @@ builder.mutationFields((t) => ({
   updateTag: t.field({
     type: TagType,
     args: {
-      id: t.arg.int({ required: true }),
+      tagId: t.arg.int({ required: true }),
       title: t.arg.string({ required: true }),
     },
-    resolve: async (_, args, ctx) => {
-      await ctx.db
+    resolve: async (_, args, ctx) =>
+      ctx.db
         .updateTable("tag")
         .set({ title: args.title })
-        .where("tag.id", "=", args.id)
-        .executeTakeFirst();
-      return await ctx.db
-        .selectFrom("tag")
-        .where("tag.id", "=", args.id)
-        .selectAll()
-        .executeTakeFirstOrThrow();
-    },
+        .where("tag.id", "=", args.tagId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
   }),
 
   deleteTag: t.field({
     type: TagType,
     args: {
-      id: t.arg.int({ required: true }),
+      tagId: t.arg.int({ required: true }),
+    },
+    resolve: async (_, args, ctx) =>
+      // todo: cache update
+      ctx.db
+        .deleteFrom("tag") //
+        .where("tag.id", "=", args.tagId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
+  }),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // todo: serviceTag //////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  //////////////////////////////////////////////////////////////////////////////
+  // service ///////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  createService: t.field({
+    type: ServiceType,
+    args: {
+      title: t.arg.string({ required: true }),
     },
     resolve: async (_, args, ctx) => {
-      const deleted = await ctx.db
-        .selectFrom("tag")
-        .where("tag.id", "=", args.id)
+      const found = await ctx.db
+        .selectFrom("service")
+        .where("service.userId", "=", ctx.user.id)
+        .where("service.title", "=", args.title)
         .selectAll()
+        .executeTakeFirst();
+      if (found) throw new Error("duplicate service title");
+      return await ctx.db
+        .insertInto("service")
+        .values({ title: args.title, userId: ctx.user.id })
+        .returningAll()
         .executeTakeFirstOrThrow();
-      await ctx.db
-        .deleteFrom("tag") //
-        .where("tag.id", "=", args.id)
-        .execute();
-      return deleted; // todo: cache update
     },
+  }),
+
+  updateService: t.field({
+    type: ServiceType,
+    args: {
+      serviceId: t.arg.int({ required: true }),
+      title: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) =>
+      ctx.db
+        .updateTable("service")
+        .set({ title: args.title })
+        .where("service.id", "=", args.serviceId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
+  }),
+
+  deleteService: t.field({
+    type: ServiceType,
+    args: {
+      serviceId: t.arg.int({ required: true }),
+    },
+    resolve: async (_, args, ctx) =>
+      // todo: cache update
+      ctx.db
+        .deleteFrom("service") //
+        .where("service.id", "=", args.serviceId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
   }),
 }));
