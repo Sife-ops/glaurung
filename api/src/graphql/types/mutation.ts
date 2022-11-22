@@ -21,22 +21,17 @@ builder.mutationFields((t) => ({
           .select(["service.id as id", "tagId", "userId", "title"])
           .execute();
         const groups = lodash.groupBy(services, (e) => e.id);
-        let servicesWithTags = [];
-        // todo: object.keys, filter/map
-        for (const groupKey in groups) {
-          const group = groups[groupKey];
-          if (args.mode === "and") {
-            const hasAllTags = args.tagIds.every((tagId) =>
+        let servicesWithTags = Object.keys(groups).map(
+          (groupKey) => groups[groupKey]
+        );
+        if (args.mode === "and") {
+          servicesWithTags = servicesWithTags.filter((group) =>
+            args.tagIds.every((tagId) =>
               group.find((service) => service.tagId === tagId)
-            );
-            if (hasAllTags) {
-              servicesWithTags.push(group[0]);
-            }
-          } else {
-            servicesWithTags.push(group[0]);
-          }
+            )
+          );
         }
-        return servicesWithTags;
+        return servicesWithTags.map((group) => group[0]);
       } else {
         return await builder.selectAll().execute();
       }
