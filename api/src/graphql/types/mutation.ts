@@ -1,7 +1,48 @@
-import { builder } from "../builder";
+import lodash from "lodash";
+import { ServiceType } from "./service";
 import { TagType } from "./tag";
+import { builder } from "../builder";
 
 builder.mutationFields((t) => ({
+  servicesWithTags: t.field({
+    type: [ServiceType],
+    args: {
+      tagIds: t.arg.intList({ required: true, defaultValue: [] }),
+      mode: t.arg.string({ required: true, defaultValue: "and" }), // todo: literal
+    },
+    resolve: async (_, args, ctx) => {
+      let builder = ctx.db
+        .selectFrom("service")
+        .where("userId", "=", ctx.user.id);
+      if (args.tagIds.length > 0) {
+        const services = await builder
+          .innerJoin("serviceTag", "serviceTag.serviceId", "service.id")
+          .where("serviceTag.tagId", "in", args.tagIds)
+          .select(["service.id as id", "tagId", "userId", "title"])
+          .execute();
+        const groups = lodash.groupBy(services, (e) => e.id);
+        let servicesWithTags = [];
+        // todo: object.keys, filter/map
+        for (const groupKey in groups) {
+          const group = groups[groupKey];
+          if (args.mode === "and") {
+            const hasAllTags = args.tagIds.every((tagId) =>
+              group.find((service) => service.tagId === tagId)
+            );
+            if (hasAllTags) {
+              servicesWithTags.push(group[0]);
+            }
+          } else {
+            servicesWithTags.push(group[0]);
+          }
+        }
+        return servicesWithTags;
+      } else {
+        return await builder.selectAll().execute();
+      }
+    },
+  }),
+
   createTag: t.field({
     type: TagType,
     args: {
