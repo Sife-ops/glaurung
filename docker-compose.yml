@@ -4,4 +4,4 @@ services:
     volumes:
       - ~/database:/app/api/database
     ports:
-      - "4000:80"
+      - "80:4000"
