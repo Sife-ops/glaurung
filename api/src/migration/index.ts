@@ -31,6 +31,22 @@ const migrateToLatest = async () => {
     process.exit(1);
   }
 
+  /**
+   * create default user
+   */
+  try {
+    await db
+      .insertInto("user")
+      .values({
+        id: 1,
+        username: "admin",
+        password: "changeme",
+      })
+      .executeTakeFirstOrThrow();
+  } catch {
+    console.log("admin exists");
+  }
+
   await db.destroy();
 };
 
