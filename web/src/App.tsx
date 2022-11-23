@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 graphql(`
   query services {
-    services {
+    tags {
       title
     }
   }

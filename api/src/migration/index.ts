@@ -35,6 +35,8 @@ const migrateToLatest = async () => {
    * create default user
    */
   try {
+    // todo: annoying message
+    console.log("creating admin account");
     await db
       .insertInto("user")
       .values({
@@ -44,7 +46,7 @@ const migrateToLatest = async () => {
       })
       .executeTakeFirstOrThrow();
   } catch {
-    console.log("admin exists");
+    //
   }
 
   await db.destroy();

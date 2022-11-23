@@ -1,3 +1,4 @@
+# todo: try building from /api
 FROM node:16-alpine
 WORKDIR /app
 COPY . .
