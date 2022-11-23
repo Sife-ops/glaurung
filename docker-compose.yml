@@ -1,0 +1,7 @@
+services:
+  api:
+    build: .
+    volumes:
+      - ~/database:/app/api/database
+    ports:
+      - "4000:80"

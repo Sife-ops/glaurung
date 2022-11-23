@@ -15,7 +15,7 @@ export interface Database {
 export const database = ({ fileMustExist }: { fileMustExist: boolean }) =>
   new Kysely<Database>({
     dialect: new SqliteDialect({
-      database: new Sqlite3("db.sqlite", {
+      database: new Sqlite3("./database/glaurung.sqlite", {
         fileMustExist,
       }),
     }),

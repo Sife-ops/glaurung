@@ -5,40 +5,6 @@ import { builder } from "../builder";
 
 // todo: return alphabetical
 builder.mutationFields((t) => ({
-  servicesWithTags: t.field({
-    type: [ServiceType],
-    args: {
-      tagIds: t.arg.intList({ required: true, defaultValue: [] }),
-      mode: t.arg.string({ required: true, defaultValue: "and" }), // todo: literal
-    },
-    resolve: async (_, args, ctx) => {
-      let builder = ctx.db
-        .selectFrom("service")
-        .where("userId", "=", ctx.user.id);
-      if (args.tagIds.length > 0) {
-        const services = await builder
-          .innerJoin("serviceTag", "serviceTag.serviceId", "service.id")
-          .where("serviceTag.tagId", "in", args.tagIds)
-          .select(["service.id as id", "tagId", "userId", "title"])
-          .execute();
-        const groups = lodash.groupBy(services, (e) => e.id);
-        let servicesWithTags = Object.keys(groups).map(
-          (groupKey) => groups[groupKey]
-        );
-        if (args.mode === "and") {
-          servicesWithTags = servicesWithTags.filter((group) =>
-            args.tagIds.every((tagId) =>
-              group.find((service) => service.tagId === tagId)
-            )
-          );
-        }
-        return servicesWithTags.map((group) => group[0]);
-      } else {
-        return await builder.selectAll().execute();
-      }
-    },
-  }),
-
   //////////////////////////////////////////////////////////////////////////////
   // tag ///////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
@@ -97,9 +63,58 @@ builder.mutationFields((t) => ({
   // todo: serviceTag //////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
+  // updateServiceTags: t.field({
+  //   type: ServiceType,
+  //   args: {
+  //     serviceId: t.arg.int({ required: true }),
+  //     tagIds: t.arg.intList({ required: true }),
+  //   },
+  //   resolve: async (_, args, ctx) =>
+  //     // todo: cache update
+  //     ctx.db
+  //       .deleteFrom("tag") //
+  //       .where("tag.id", "=", args.tagId)
+  //       .returningAll()
+  //       .executeTakeFirstOrThrow(),
+  // }),
+
   //////////////////////////////////////////////////////////////////////////////
   // service ///////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
+
+  servicesWithTags: t.field({
+    type: [ServiceType],
+    args: {
+      tagIds: t.arg.intList({ required: true, defaultValue: [] }),
+      mode: t.arg.string({ required: true, defaultValue: "and" }), // todo: literal
+    },
+    resolve: async (_, args, ctx) => {
+      let builder = ctx.db
+        .selectFrom("service")
+        .where("userId", "=", ctx.user.id);
+      if (args.tagIds.length > 0) {
+        const services = await builder
+          .innerJoin("serviceTag", "serviceTag.serviceId", "service.id")
+          .where("serviceTag.tagId", "in", args.tagIds)
+          .select(["service.id as id", "tagId", "userId", "title"])
+          .execute();
+        const groups = lodash.groupBy(services, (e) => e.id);
+        let servicesWithTags = Object.keys(groups).map(
+          (groupKey) => groups[groupKey]
+        );
+        if (args.mode === "and") {
+          servicesWithTags = servicesWithTags.filter((group) =>
+            args.tagIds.every((tagId) =>
+              group.find((service) => service.tagId === tagId)
+            )
+          );
+        }
+        return servicesWithTags.map((group) => group[0]);
+      } else {
+        return await builder.selectAll().execute();
+      }
+    },
+  }),
 
   createService: t.field({
     type: ServiceType,
