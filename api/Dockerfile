@@ -1,9 +1,8 @@
-# todo: try building from /api
 FROM node:16-alpine
 WORKDIR /app
-COPY . .
+COPY package.json .
 RUN npm install
-WORKDIR /app/api
+COPY . .
 RUN npm run build
 RUN mkdir database
 EXPOSE 4000
