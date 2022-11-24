@@ -6,9 +6,7 @@ import { Provider, createClient } from "urql";
 import { AuthContextProvider } from "./hook/auth-context";
 
 const urql = createClient({
-  // todo: variable url
-  // url: "https://izwqvemxce.execute-api.us-east-1.amazonaws.com",
-  url: "http://localhost:4000",
+  url: import.meta.env.VITE_API_URL || "http://localhost:4000",
   fetchOptions: () => {
     return {
       headers: {
