@@ -378,7 +378,6 @@ builder.mutationFields((t) => ({
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
         .executeTakeFirstOrThrow();
-
       return await ctx.db
         .selectFrom("profile")
         .where("profile.id", "=", deleted.id)

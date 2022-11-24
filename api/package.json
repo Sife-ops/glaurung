@@ -10,8 +10,10 @@
     "mock-data": "node ./dist/mock-data/index.js"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/better-sqlite3": "^7.6.2",
     "@types/cors": "^2.8.12",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/lodash": "^4.14.189",
     "@types/node": "^18.11.9",
     "nodemon": "^2.0.20",
@@ -21,11 +23,13 @@
     "@apollo/server": "^4.1.1",
     "@pothos/core": "^3.22.9",
     "@pothos/plugin-dataloader": "^3.12.7",
+    "bcryptjs": "^2.4.3",
     "better-sqlite3": "^7.6.2",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "graphql": "^16.6.0",
+    "jsonwebtoken": "^8.5.1",
     "kysely": "^0.22.0",
     "lodash": "^4.17.21"
   }
