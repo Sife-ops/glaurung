@@ -17,7 +17,129 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  hello: Scalars['String'];
+  createProfile: Profile;
+  createProfileField: Profile;
+  createService: Service;
+  createServiceField: Service;
+  createTag: Tag;
+  deleteProfile: Profile;
+  deleteProfileField: Profile;
+  deleteService: Service;
+  deleteServiceField: Service;
+  deleteTag: Tag;
+  servicesWithTags: Array<Service>;
+  signIn: Scalars['String'];
+  updateProfile: Profile;
+  updateProfileField: Profile;
+  updateService: Service;
+  updateServiceField: Service;
+  updateServiceTags: Service;
+  updateTag: Tag;
+};
+
+
+export type MutationCreateProfileArgs = {
+  serviceId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationCreateProfileFieldArgs = {
+  key: Scalars['String'];
+  profileId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationCreateServiceArgs = {
+  title: Scalars['String'];
+};
+
+
+export type MutationCreateServiceFieldArgs = {
+  key: Scalars['String'];
+  serviceId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationCreateTagArgs = {
+  title: Scalars['String'];
+};
+
+
+export type MutationDeleteProfileArgs = {
+  profileId: Scalars['Int'];
+};
+
+
+export type MutationDeleteProfileFieldArgs = {
+  profileFieldId: Scalars['Int'];
+};
+
+
+export type MutationDeleteServiceArgs = {
+  serviceId: Scalars['Int'];
+};
+
+
+export type MutationDeleteServiceFieldArgs = {
+  serviceFieldId: Scalars['Int'];
+};
+
+
+export type MutationDeleteTagArgs = {
+  tagId: Scalars['Int'];
+};
+
+
+export type MutationServicesWithTagsArgs = {
+  mode?: Scalars['String'];
+  tagIds?: Array<Scalars['Int']>;
+};
+
+
+export type MutationSignInArgs = {
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileArgs = {
+  profileId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileFieldArgs = {
+  key: Scalars['String'];
+  profileFieldId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceArgs = {
+  serviceId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceFieldArgs = {
+  key: Scalars['String'];
+  serviceFieldId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceTagsArgs = {
+  serviceId: Scalars['Int'];
+  tagIds: Array<Scalars['Int']>;
+};
+
+
+export type MutationUpdateTagArgs = {
+  tagId: Scalars['Int'];
+  title: Scalars['String'];
 };
 
 export type Profile = {
@@ -67,20 +189,37 @@ export type Tag = {
   title: Scalars['String'];
 };
 
-export type ServicesQueryVariables = Exact<{ [key: string]: never; }>;
+export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ServicesQuery = { __typename?: 'Query', services: Array<{ __typename?: 'Service', title: string }> };
+export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', title: string }> };
+
+export type SignInMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
 
 
-export const ServicesDocument = gql`
-    query services {
-  services {
+export type SignInMutation = { __typename?: 'Mutation', signIn: string };
+
+
+export const TagsDocument = gql`
+    query tags {
+  tags {
     title
   }
 }
     `;
 
-export function useServicesQuery(options?: Omit<Urql.UseQueryArgs<ServicesQueryVariables>, 'query'>) {
-  return Urql.useQuery<ServicesQuery, ServicesQueryVariables>({ query: ServicesDocument, ...options });
+export function useTagsQuery(options?: Omit<Urql.UseQueryArgs<TagsQueryVariables>, 'query'>) {
+  return Urql.useQuery<TagsQuery, TagsQueryVariables>({ query: TagsDocument, ...options });
+};
+export const SignInDocument = gql`
+    mutation signIn($username: String!, $password: String!) {
+  signIn(username: $username, password: $password)
+}
+    `;
+
+export function useSignInMutation() {
+  return Urql.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument);
 };

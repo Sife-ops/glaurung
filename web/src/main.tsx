@@ -6,7 +6,8 @@ import { Provider, createClient } from "urql";
 
 const urql = createClient({
   // todo: variable url
-  url: "https://izwqvemxce.execute-api.us-east-1.amazonaws.com",
+  // url: "https://izwqvemxce.execute-api.us-east-1.amazonaws.com",
+  url: "http://localhost:4000",
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

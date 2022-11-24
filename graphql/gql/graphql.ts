@@ -16,7 +16,129 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  hello: Scalars['String'];
+  createProfile: Profile;
+  createProfileField: Profile;
+  createService: Service;
+  createServiceField: Service;
+  createTag: Tag;
+  deleteProfile: Profile;
+  deleteProfileField: Profile;
+  deleteService: Service;
+  deleteServiceField: Service;
+  deleteTag: Tag;
+  servicesWithTags: Array<Service>;
+  signIn: Scalars['String'];
+  updateProfile: Profile;
+  updateProfileField: Profile;
+  updateService: Service;
+  updateServiceField: Service;
+  updateServiceTags: Service;
+  updateTag: Tag;
+};
+
+
+export type MutationCreateProfileArgs = {
+  serviceId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationCreateProfileFieldArgs = {
+  key: Scalars['String'];
+  profileId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationCreateServiceArgs = {
+  title: Scalars['String'];
+};
+
+
+export type MutationCreateServiceFieldArgs = {
+  key: Scalars['String'];
+  serviceId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationCreateTagArgs = {
+  title: Scalars['String'];
+};
+
+
+export type MutationDeleteProfileArgs = {
+  profileId: Scalars['Int'];
+};
+
+
+export type MutationDeleteProfileFieldArgs = {
+  profileFieldId: Scalars['Int'];
+};
+
+
+export type MutationDeleteServiceArgs = {
+  serviceId: Scalars['Int'];
+};
+
+
+export type MutationDeleteServiceFieldArgs = {
+  serviceFieldId: Scalars['Int'];
+};
+
+
+export type MutationDeleteTagArgs = {
+  tagId: Scalars['Int'];
+};
+
+
+export type MutationServicesWithTagsArgs = {
+  mode?: Scalars['String'];
+  tagIds?: Array<Scalars['Int']>;
+};
+
+
+export type MutationSignInArgs = {
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileArgs = {
+  profileId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileFieldArgs = {
+  key: Scalars['String'];
+  profileFieldId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceArgs = {
+  serviceId: Scalars['Int'];
+  title: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceFieldArgs = {
+  key: Scalars['String'];
+  serviceFieldId: Scalars['Int'];
+  value: Scalars['String'];
+};
+
+
+export type MutationUpdateServiceTagsArgs = {
+  serviceId: Scalars['Int'];
+  tagIds: Array<Scalars['Int']>;
+};
+
+
+export type MutationUpdateTagArgs = {
+  tagId: Scalars['Int'];
+  title: Scalars['String'];
 };
 
 export type Profile = {
@@ -66,10 +188,19 @@ export type Tag = {
   title: Scalars['String'];
 };
 
-export type ServicesQueryVariables = Exact<{ [key: string]: never; }>;
+export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ServicesQuery = { __typename?: 'Query', services: Array<{ __typename?: 'Service', title: string }> };
+export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', title: string }> };
+
+export type SignInMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
 
 
-export const ServicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"services"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]} as unknown as DocumentNode<ServicesQuery, ServicesQueryVariables>;
+export type SignInMutation = { __typename?: 'Mutation', signIn: string };
+
+
+export const TagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]} as unknown as DocumentNode<TagsQuery, TagsQueryVariables>;
+export const SignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"signIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}]}]}}]} as unknown as DocumentNode<SignInMutation, SignInMutationVariables>;
