@@ -25,44 +25,48 @@ import { schema } from "./graphql/schema";
   app.use(
     cors(),
     bodyParser.json(),
-    expressMiddleware(server, {
-      context: async (context): Promise<GqlContext> => {
-        // console.log(context.req.headers);
-        // console.log(context.req.body.query);
-
-        const parsedQuery = parse(context.req.body.query);
+    (req, res, next) => {
+      try {
+        const parsedQuery = parse(req.body.query);
         const firstFieldName = firstFieldValueNameFromOperation(
           firstOperationDefinition(parsedQuery)
         );
-        // console.log(firstFieldName);
 
-        const isPublic = [
-          "user",
-          //
-        ].includes(firstFieldName);
-        const accessToken = context.req.headers.authorization;
+        const isPublic = ["signIn"].includes(firstFieldName);
+        const accessToken = req.headers.authorization;
 
-        let id: number;
-        let username: string;
         if (!isPublic) {
           console.log("private operation");
-          // if (!accessToken) throw new Error("no access token");
-          // verify(accessToken, accessTokenSecret); // throws error
-          // ({ userId, email } = decode(accessToken) as {
-          //   userId: string;
-          //   email: string;
-          // });
+          if (!accessToken) throw new Error("no access token");
+          verify(accessToken, "// todo: secret"); // throws error
+
+          // @ts-ignore
+          req.user = decode(accessToken) as {
+            id: string;
+            username: string;
+          };
         }
 
-        const user = {
-          id: 1,
-          username: "admin",
-        };
+        next();
+      } catch {
+        res.status(401).send();
+      }
+    },
+    expressMiddleware(server, {
+      context: async (context): Promise<GqlContext> => {
+        // const user = {
+        //   id: 1,
+        //   username: "admin",
+        // };
+
+        // @ts-ignore
+        console.log(context.req.user);
 
         return {
           ...context,
           db,
-          user,
+          // @ts-ignore
+          user: context.req.user,
         };
       },
     })
