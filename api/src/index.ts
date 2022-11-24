@@ -26,8 +26,6 @@ import { schema } from "./graphql/schema";
     cors(),
     bodyParser.json(),
     (req, res, next) => {
-      // next();
-      // return;
       try {
         const parsedQuery = parse(req.body.query);
         const firstFieldName = firstFieldValueNameFromOperation(
@@ -38,7 +36,6 @@ import { schema } from "./graphql/schema";
         const accessToken = req.headers.authorization;
 
         if (!isPublic) {
-          console.log("private operation");
           if (!accessToken) throw new Error("no access token");
           verify(accessToken, "// todo: secret"); // throws error
 
@@ -56,14 +53,6 @@ import { schema } from "./graphql/schema";
     },
     expressMiddleware(server, {
       context: async (context): Promise<GqlContext> => {
-        // const user = {
-        //   id: 1,
-        //   username: "admin",
-        // };
-
-        // @ts-ignore
-        console.log(context.req.user);
-
         return {
           ...context,
           db,

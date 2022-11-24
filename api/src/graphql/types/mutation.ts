@@ -1,9 +1,10 @@
+// import { UserType } from "./user";
 import lodash from "lodash";
 import { ProfileType } from "./profile";
 import { ServiceType } from "./service";
 import { TagType } from "./tag";
-// import { UserType } from "./user";
 import { builder } from "../builder";
+import { compareSync } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 
 // todo: return alphabetical
@@ -23,8 +24,7 @@ builder.mutationFields((t) => ({
         .where("user.username", "=", args.username)
         .selectAll()
         .executeTakeFirstOrThrow();
-      // todo: bcryptjs
-      if (user.password !== args.password) {
+      if (!compareSync(args.password, user.password)) {
         throw new Error("incorrect password");
       }
       return sign({ id: user.id, username: user.username }, "// todo: secret", {

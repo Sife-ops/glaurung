@@ -1,6 +1,7 @@
 import * as migrations from "./migrations";
 import { Migrator } from "kysely";
 import { database } from "../model/database";
+import { hashSync } from "bcryptjs";
 
 const migrateToLatest = async () => {
   database({ fileMustExist: false }); // create file
@@ -42,7 +43,7 @@ const migrateToLatest = async () => {
       .values({
         id: 1,
         username: "admin",
-        password: "changeme",
+        password: hashSync("pass"),
       })
       .executeTakeFirstOrThrow();
   } catch {
