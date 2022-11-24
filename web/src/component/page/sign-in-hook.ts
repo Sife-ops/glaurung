@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { graphql } from "@glaurung/graphql/gql";
 import { useSignInMutation } from "@glaurung/graphql/urql";
+import { useAuthContext } from "../../hook/auth-context";
 // import { useTypedMutation, useTypedQuery } from "@mandos/graphql/urql";
 // import { useQueryParam } from "@mandos/react/query-param";
 
 export const useSignIn = () => {
-//   const nav = useNavigate();
+  const nav = useNavigate();
 
   //   const [loading, setLoading] = useState(true);
   //   const [serviceTitle, setServiceTitle] = useState("");
@@ -72,6 +73,8 @@ export const useSignIn = () => {
     // });
   };
 
+  const authContext = useAuthContext();
+
   useEffect(() => {
     const { fetching, data, error } = signInState;
     if (error) {
@@ -86,6 +89,10 @@ export const useSignIn = () => {
       //   window.location.href = `${data.signIn}${
       //     redirect ? `&redirect=${redirect}` : ""
       //   }`;
+      localStorage.setItem("accessToken", data.signIn);
+      //   localStorage.setItem("refreshToken", refreshToken);
+      authContext.setSignedIn(true);
+      nav("/home");
     }
   }, [signInState.data]);
 

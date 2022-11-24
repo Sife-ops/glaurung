@@ -26,6 +26,8 @@ import { schema } from "./graphql/schema";
     cors(),
     bodyParser.json(),
     (req, res, next) => {
+      // next();
+      // return;
       try {
         const parsedQuery = parse(req.body.query);
         const firstFieldName = firstFieldValueNameFromOperation(

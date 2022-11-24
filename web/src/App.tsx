@@ -1,6 +1,11 @@
 // import reactLogo from "./assets/react.svg";
+// import { useEffect } from "react";
+// import { useServicesQuery } from "@glaurung/graphql/urql";
 // import { useState } from "react";
 import "./App.css";
+import { SignIn } from "./component/page/sign-in";
+import { useAuthContext } from "./hook/auth-context";
+
 import {
   Outlet,
   BrowserRouter,
@@ -9,19 +14,7 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
-import { graphql } from "@glaurung/graphql/gql";
-import { useAuthContext } from "./hook/auth-context";
-import { SignIn } from "./component/page/sign-in";
-// import { useEffect } from "react";
-// import { useServicesQuery } from "@glaurung/graphql/urql";
-
-graphql(`
-  query tags {
-    tags {
-      title
-    }
-  }
-`);
+import { Home } from "./component/page/home";
 
 function App() {
   return (
@@ -37,15 +30,7 @@ function App() {
             // </UserContextProvider>
           }
         >
-          <Route path="/home" element={<div>home</div>} />
-          {/* <Route path="/home" element={<Home />} />
-          <Route path="/my-feeds" element={<MyFeeds />} />
-          <Route path="/add-feed" element={<AddFeed />} />
-          <Route path="/friends" element={<Friends />} />
-          <Route path="/feed/:feedId" element={<Feed />} />
-          <Route path="/article/:articleId" element={<Article />} />
-          <Route path="/user/:userId" element={<User />} />
-          <Route path="/" element={<Navigate to="/home" />} /> */}
+          <Route path="/home" element={<Home />} />
         </Route>
         <Route path="/sign-in" element={<SignIn />} />
         {/* <Route path="/sign-in" element={<div>sign in</div>} /> */}
