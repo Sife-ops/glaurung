@@ -1,7 +1,10 @@
 import { Generated } from "kysely";
 
-export { User } from "./user";
-
+export interface User {
+  id: Generated<number>;
+  username: string;
+  password: string;
+}
 export interface Service {
   // todo: uuid for ids
   id: Generated<number>;

@@ -2,6 +2,7 @@ import lodash from "lodash";
 import { ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
+import { ProfileType } from "./profile";
 
 // todo: return alphabetical
 builder.mutationFields((t) => ({
@@ -51,7 +52,6 @@ builder.mutationFields((t) => ({
       tagId: t.arg.int({ required: true }),
     },
     resolve: async (_, args, ctx) =>
-      // todo: cache update
       ctx.db
         .deleteFrom("tag") //
         .where("tag.id", "=", args.tagId)
@@ -60,23 +60,37 @@ builder.mutationFields((t) => ({
   }),
 
   //////////////////////////////////////////////////////////////////////////////
-  // todo: serviceTag //////////////////////////////////////////////////////////
+  // serviceTag ////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
-  // updateServiceTags: t.field({
-  //   type: ServiceType,
-  //   args: {
-  //     serviceId: t.arg.int({ required: true }),
-  //     tagIds: t.arg.intList({ required: true }),
-  //   },
-  //   resolve: async (_, args, ctx) =>
-  //     // todo: cache update
-  //     ctx.db
-  //       .deleteFrom("tag") //
-  //       .where("tag.id", "=", args.tagId)
-  //       .returningAll()
-  //       .executeTakeFirstOrThrow(),
-  // }),
+  updateServiceTags: t.field({
+    type: ServiceType,
+    args: {
+      serviceId: t.arg.int({ required: true }),
+      tagIds: t.arg.intList({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      await ctx.db
+        .deleteFrom("serviceTag")
+        .where("serviceTag.serviceId", "=", args.serviceId)
+        .execute();
+
+      if (args.tagIds.length > 0) {
+        for (const tagId of args.tagIds) {
+          await ctx.db
+            .insertInto("serviceTag")
+            .values({ serviceId: args.serviceId, tagId })
+            .execute();
+        }
+      }
+
+      return await ctx.db
+        .selectFrom("service")
+        .where("service.id", "=", args.serviceId)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
 
   //////////////////////////////////////////////////////////////////////////////
   // service ///////////////////////////////////////////////////////////////////
@@ -158,11 +172,218 @@ builder.mutationFields((t) => ({
       serviceId: t.arg.int({ required: true }),
     },
     resolve: async (_, args, ctx) =>
-      // todo: cache update
       ctx.db
         .deleteFrom("service") //
         .where("service.id", "=", args.serviceId)
         .returningAll()
         .executeTakeFirstOrThrow(),
+  }),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // serviceField //////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  createServiceField: t.field({
+    type: ServiceType,
+    args: {
+      serviceId: t.arg.int({ required: true }),
+      key: t.arg.string({ required: true }),
+      value: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const found = await ctx.db
+        .selectFrom("serviceField")
+        .where("serviceField.serviceId", "=", args.serviceId)
+        .where("serviceField.key", "=", args.key)
+        .selectAll()
+        .executeTakeFirst();
+      if (found) throw new Error("duplicate serviceField key");
+      await ctx.db
+        .insertInto("serviceField")
+        .values({
+          serviceId: args.serviceId,
+          key: args.key,
+          value: args.value,
+        })
+        .execute();
+      return await ctx.db
+        .selectFrom("service")
+        .where("service.id", "=", args.serviceId)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  updateServiceField: t.field({
+    type: ServiceType,
+    args: {
+      serviceFieldId: t.arg.int({ required: true }),
+      key: t.arg.string({ required: true }),
+      value: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const updated = await ctx.db
+        .updateTable("serviceField")
+        .set({ key: args.key, value: args.value })
+        .where("serviceField.id", "=", args.serviceFieldId)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return await ctx.db
+        .selectFrom("service")
+        .where("service.id", "=", updated.serviceId)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  deleteServiceField: t.field({
+    type: ServiceType,
+    args: {
+      serviceFieldId: t.arg.int({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const deleted = await ctx.db
+        .deleteFrom("serviceField") //
+        .where("serviceField.id", "=", args.serviceFieldId)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+
+      return await ctx.db
+        .selectFrom("service")
+        .where("service.id", "=", deleted.id)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // profile ///////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  createProfile: t.field({
+    type: ProfileType,
+    args: {
+      serviceId: t.arg.int({ required: true }),
+      title: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const found = await ctx.db
+        .selectFrom("profile")
+        .where("profile.serviceId", "=", args.serviceId)
+        .where("profile.title", "=", args.title)
+        .selectAll()
+        .executeTakeFirst();
+      if (found) throw new Error("duplicate profile title");
+      return await ctx.db
+        .insertInto("profile")
+        .values({ title: args.title, serviceId: args.serviceId })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  updateProfile: t.field({
+    type: ProfileType,
+    args: {
+      profileId: t.arg.int({ required: true }),
+      title: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) =>
+      ctx.db
+        .updateTable("profile")
+        .set({ title: args.title })
+        .where("profile.id", "=", args.profileId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
+  }),
+
+  deleteProfile: t.field({
+    type: ProfileType,
+    args: {
+      profileId: t.arg.int({ required: true }),
+    },
+    resolve: async (_, args, ctx) =>
+      ctx.db
+        .deleteFrom("profile") //
+        .where("profile.id", "=", args.profileId)
+        .returningAll()
+        .executeTakeFirstOrThrow(),
+  }),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // profileField //////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  createProfileField: t.field({
+    type: ProfileType,
+    args: {
+      profileId: t.arg.int({ required: true }),
+      key: t.arg.string({ required: true }),
+      value: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const found = await ctx.db
+        .selectFrom("profileField")
+        .where("profileField.profileId", "=", args.profileId)
+        .where("profileField.key", "=", args.key)
+        .selectAll()
+        .executeTakeFirst();
+      if (found) throw new Error("duplicate profileField key");
+      await ctx.db
+        .insertInto("profileField")
+        .values({
+          profileId: args.profileId,
+          key: args.key,
+          value: args.value,
+        })
+        .execute();
+      return await ctx.db
+        .selectFrom("profile")
+        .where("profile.id", "=", args.profileId)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  updateProfileField: t.field({
+    type: ProfileType,
+    args: {
+      profileFieldId: t.arg.int({ required: true }),
+      key: t.arg.string({ required: true }),
+      value: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const updated = await ctx.db
+        .updateTable("profileField")
+        .set({ key: args.key, value: args.value })
+        .where("profileField.id", "=", args.profileFieldId)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return await ctx.db
+        .selectFrom("profile")
+        .where("profile.id", "=", updated.profileId)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
+  }),
+
+  deleteProfileField: t.field({
+    type: ProfileType,
+    args: {
+      profileFieldId: t.arg.int({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const deleted = await ctx.db
+        .deleteFrom("profileField") //
+        .where("profileField.id", "=", args.profileFieldId)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+
+      return await ctx.db
+        .selectFrom("profile")
+        .where("profile.id", "=", deleted.id)
+        .selectAll()
+        .executeTakeFirstOrThrow();
+    },
   }),
 }));
