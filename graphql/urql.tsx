@@ -189,10 +189,12 @@ export type Tag = {
   title: Scalars['String'];
 };
 
-export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
+export type CreateServiceMutationVariables = Exact<{
+  title: Scalars['String'];
+}>;
 
 
-export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', title: string }> };
+export type CreateServiceMutation = { __typename?: 'Mutation', createService: { __typename?: 'Service', id: string } };
 
 export type SignInMutationVariables = Exact<{
   username: Scalars['String'];
@@ -202,17 +204,43 @@ export type SignInMutationVariables = Exact<{
 
 export type SignInMutation = { __typename?: 'Mutation', signIn: string };
 
+export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
-export const TagsDocument = gql`
-    query tags {
-  tags {
-    title
+
+export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id: string, title: string }> };
+
+export type UpdateServiceTagsMutationVariables = Exact<{
+  serviceId: Scalars['Int'];
+  tagIds: Array<Scalars['Int']> | Scalars['Int'];
+}>;
+
+
+export type UpdateServiceTagsMutation = { __typename?: 'Mutation', updateServiceTags: { __typename?: 'Service', id: string } };
+
+export type AllServicesMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllServicesMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
+
+export type ServicesWithTagsMutationVariables = Exact<{
+  tagIds: Array<Scalars['Int']> | Scalars['Int'];
+  mode?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type ServicesWithTagsMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
+
+
+export const CreateServiceDocument = gql`
+    mutation createService($title: String!) {
+  createService(title: $title) {
+    id
   }
 }
     `;
 
-export function useTagsQuery(options?: Omit<Urql.UseQueryArgs<TagsQueryVariables>, 'query'>) {
-  return Urql.useQuery<TagsQuery, TagsQueryVariables>({ query: TagsDocument, ...options });
+export function useCreateServiceMutation() {
+  return Urql.useMutation<CreateServiceMutation, CreateServiceMutationVariables>(CreateServiceDocument);
 };
 export const SignInDocument = gql`
     mutation signIn($username: String!, $password: String!) {
@@ -222,4 +250,59 @@ export const SignInDocument = gql`
 
 export function useSignInMutation() {
   return Urql.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument);
+};
+export const TagsDocument = gql`
+    query tags {
+  tags {
+    id
+    title
+  }
+}
+    `;
+
+export function useTagsQuery(options?: Omit<Urql.UseQueryArgs<TagsQueryVariables>, 'query'>) {
+  return Urql.useQuery<TagsQuery, TagsQueryVariables>({ query: TagsDocument, ...options });
+};
+export const UpdateServiceTagsDocument = gql`
+    mutation updateServiceTags($serviceId: Int!, $tagIds: [Int!]!) {
+  updateServiceTags(serviceId: $serviceId, tagIds: $tagIds) {
+    id
+  }
+}
+    `;
+
+export function useUpdateServiceTagsMutation() {
+  return Urql.useMutation<UpdateServiceTagsMutation, UpdateServiceTagsMutationVariables>(UpdateServiceTagsDocument);
+};
+export const AllServicesDocument = gql`
+    mutation allServices {
+  servicesWithTags {
+    id
+    title
+    fields {
+      key
+      value
+    }
+  }
+}
+    `;
+
+export function useAllServicesMutation() {
+  return Urql.useMutation<AllServicesMutation, AllServicesMutationVariables>(AllServicesDocument);
+};
+export const ServicesWithTagsDocument = gql`
+    mutation servicesWithTags($tagIds: [Int!]!, $mode: String) {
+  servicesWithTags(tagIds: $tagIds, mode: $mode) {
+    id
+    title
+    fields {
+      key
+      value
+    }
+  }
+}
+    `;
+
+export function useServicesWithTagsMutation() {
+  return Urql.useMutation<ServicesWithTagsMutation, ServicesWithTagsMutationVariables>(ServicesWithTagsDocument);
 };

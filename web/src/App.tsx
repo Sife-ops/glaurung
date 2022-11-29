@@ -5,7 +5,6 @@
 import "./App.css";
 import { SignIn } from "./component/page/sign-in";
 import { useAuthContext } from "./hook/auth-context";
-
 import {
   Outlet,
   BrowserRouter,
@@ -15,6 +14,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Home } from "./component/page/home";
+import { CreateService } from "./component/page/create-service";
 
 function App() {
   return (
@@ -31,6 +31,8 @@ function App() {
           }
         >
           <Route path="/home" element={<Home />} />
+          <Route path="/create-service" element={<CreateService />} />
+          <Route path="/" element={<Navigate to="/home" />} />
         </Route>
         <Route path="/sign-in" element={<SignIn />} />
         {/* <Route path="/sign-in" element={<div>sign in</div>} /> */}
