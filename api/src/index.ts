@@ -1,14 +1,14 @@
-// import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import http from "http";
 import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { GqlContext } from "./graphql/builder";
 import { database } from "./model/database";
 import { decode, verify } from "jsonwebtoken";
 import { expressMiddleware } from "@apollo/server/express4";
-import { parse } from "graphql";
+// import { parse } from "graphql";
 import { schema } from "./graphql/schema";
 
 (async () => {
@@ -18,6 +18,7 @@ import { schema } from "./graphql/schema";
 
   const server = new ApolloServer({
     schema,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await server.start();
@@ -27,30 +28,31 @@ import { schema } from "./graphql/schema";
     bodyParser.json(),
     (req, res, next) => {
       try {
-        // next();
-        // return;
-        const parsedQuery = parse(req.body.query);
-        const firstFieldName = firstFieldValueNameFromOperation(
-          firstOperationDefinition(parsedQuery)
-        );
+        // const parsedQuery = parse(req.body.query);
+        // const firstFieldName = firstFieldValueNameFromOperation(
+        //   firstOperationDefinition(parsedQuery)
+        // );
 
-        const isPublic = ["signIn"].includes(firstFieldName);
+        // const isPublic = ["signIn"].includes(firstFieldName);
         const accessToken = req.headers.authorization;
 
-        if (!isPublic) {
-          if (!accessToken) throw new Error("no access token");
-          verify(accessToken, "// todo: secret"); // throws error
+        // next();
+        // return;
 
-          // @ts-ignore
-          req.user = decode(accessToken) as {
-            id: string;
-            username: string;
-          };
-        }
+        // if (!isPublic) {
+        if (!accessToken) throw new Error("no access token");
+        verify(accessToken, "// todo: secret"); // throws error
+        // @ts-ignore
+        req.user = decode(accessToken) as {
+          id: string;
+          username: string;
+        };
+        // }
 
         next();
       } catch {
-        res.status(401).send();
+        // res.status(401).send();
+        next();
       }
     },
     expressMiddleware(server, {

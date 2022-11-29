@@ -177,7 +177,7 @@ builder.mutationFields((t) => ({
   servicesWithTags: t.field({
     type: [ServiceType],
     args: {
-      tagIds: t.arg.intList({ required: true, defaultValue: [] }),
+      tagIds: t.arg.intList({ required: true, defaultValue: [] }), // todo: allow tag titles
       mode: t.arg.string({ required: true, defaultValue: "and" }), // todo: literal
     },
     resolve: async (_, args, ctx) => {
