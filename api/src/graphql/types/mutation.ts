@@ -5,6 +5,7 @@ import { TagType } from "./tag";
 import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { faker } from "@faker-js/faker";
 
 const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
 
@@ -372,12 +373,16 @@ builder.mutationFields((t) => ({
         .selectAll()
         .executeTakeFirst();
       if (found) throw new Error("duplicate profileField key");
+      let value: string = "";
+      if (args.key === "password" && !args.value) {
+        value = faker.internet.password(16);
+      }
       await ctx.db
         .insertInto("profileField")
         .values({
           profileId: args.profileId,
           key: args.key,
-          value: args.value,
+          value,
         })
         .execute();
       return await ctx.db
