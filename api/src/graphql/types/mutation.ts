@@ -4,8 +4,8 @@ import { ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
-import { sign } from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
+import { sign } from "jsonwebtoken";
 
 const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
 
