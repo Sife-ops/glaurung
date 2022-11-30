@@ -12,7 +12,7 @@ provider:
 # custom: ${file(./serverless/custom.yml)}
 
 constructs:
-  frontend:
+  web:
     type: single-page-app
     path: ./dist
     # domain:

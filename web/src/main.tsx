@@ -7,13 +7,6 @@ import { AuthContextProvider } from "./hook/auth-context";
 
 const urql = createClient({
   url: import.meta.env.VITE_API_URL || "http://localhost:4000",
-  fetchOptions: () => {
-    return {
-      headers: {
-        authorization: localStorage.getItem("accessToken") || "",
-      },
-    };
-  },
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

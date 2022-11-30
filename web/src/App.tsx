@@ -15,7 +15,7 @@ import {
 } from "react-router-dom";
 
 const fetcher = createGraphiQLFetcher({
-  url: "http://localhost:4000",
+  url: import.meta.env.VITE_API_URL || "http://localhost:4000",
   headers: {
     authorization: localStorage.getItem("accessToken") || "",
   },
