@@ -3,5 +3,7 @@ services:
     build: .
     volumes:
       - ~/database:/app/database
+    environment:
+      - GLAURUNG_ACCESS_TOKEN_SECRET=${GLAURUNG_ACCESS_TOKEN_SECRET}
     ports:
       - "80:4000"

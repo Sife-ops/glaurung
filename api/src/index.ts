@@ -10,6 +10,16 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { parse } from "graphql";
 import { schema } from "./graphql/schema";
 
+const prod = process.env.PROD ? true : false;
+
+const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
+
+if (prod) {
+  if (accessTokenSecret === "local") {
+    throw new Error("GLAURUNG_ACCESS_TOKEN_SECRET must be explicitly set");
+  }
+}
+
 (async () => {
   const db = database({ fileMustExist: true });
   const app = express();
@@ -23,9 +33,6 @@ import { schema } from "./graphql/schema";
     bodyParser.json(),
     (req, res, next) => {
       try {
-        // next();
-        // return;
-
         const parsedQuery = parse(req.body.query);
         const firstFieldName = firstFieldValueNameFromOperation(
           firstOperationDefinition(parsedQuery)
@@ -36,7 +43,7 @@ import { schema } from "./graphql/schema";
 
         if (!isPublic) {
           if (!accessToken) throw new Error("no access token");
-          verify(accessToken, "// todo: secret"); // throws error
+          verify(accessToken, accessTokenSecret); // throws error
           // @ts-ignore
           req.user = decode(accessToken) as {
             id: string;

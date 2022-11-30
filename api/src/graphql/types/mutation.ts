@@ -6,6 +6,8 @@ import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 
+const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
+
 // todo: return alphabetical
 builder.mutationFields((t) => ({
   //////////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,7 @@ builder.mutationFields((t) => ({
       if (!compareSync(args.password, user.password)) {
         throw new Error("incorrect password");
       }
-      return sign({ id: user.id, username: user.username }, "// todo: secret", {
+      return sign({ id: user.id, username: user.username }, accessTokenSecret, {
         // todo: token options
         expiresIn: "7d",
       });
