@@ -376,6 +376,8 @@ builder.mutationFields((t) => ({
       let value: string = "";
       if (args.key === "password" && !args.value) {
         value = faker.internet.password(16);
+      } else {
+        value = args.value;
       }
       await ctx.db
         .insertInto("profileField")
