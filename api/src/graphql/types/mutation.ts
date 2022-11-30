@@ -1,10 +1,9 @@
-// import { UserType } from "./user";
 import lodash from "lodash";
 import { ProfileType } from "./profile";
 import { ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
-import { compareSync } from "bcryptjs";
+import { compareSync, hashSync } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 
 // todo: return alphabetical
@@ -29,60 +28,24 @@ builder.mutationFields((t) => ({
       }
       return sign({ id: user.id, username: user.username }, "// todo: secret", {
         // todo: token options
-        expiresIn: "1h",
+        expiresIn: "7d",
       });
     },
   }),
 
-  // todo: signUp
-  // createUser: t.field({
-  //   type: UserType,
-  //   args: {
-  //     title: t.arg.string({ required: true }),
-  //   },
-  //   resolve: async (_, args, ctx) => {
-  //     const found = await ctx.db
-  //       .selectFrom("tag")
-  //       .where("tag.userId", "=", ctx.user.id)
-  //       .where("tag.title", "=", args.title)
-  //       .selectAll()
-  //       .executeTakeFirst();
-  //     if (found) throw new Error("duplicate tag title");
-  //     return await ctx.db
-  //       .insertInto("tag")
-  //       .values({ title: args.title, userId: ctx.user.id })
-  //       .returningAll()
-  //       .executeTakeFirstOrThrow();
-  //   },
-  // }),
-
-  // updateUser: t.field({
-  //   type: UserType,
-  //   args: {
-  //     tagId: t.arg.int({ required: true }),
-  //     title: t.arg.string({ required: true }),
-  //   },
-  //   resolve: async (_, args, ctx) =>
-  //     ctx.db
-  //       .updateTable("tag")
-  //       .set({ title: args.title })
-  //       .where("tag.id", "=", args.tagId)
-  //       .returningAll()
-  //       .executeTakeFirstOrThrow(),
-  // }),
-
-  // deleteUser: t.field({
-  //   type: UserType,
-  //   args: {
-  //     tagId: t.arg.int({ required: true }),
-  //   },
-  //   resolve: async (_, args, ctx) =>
-  //     ctx.db
-  //       .deleteFrom("tag") //
-  //       .where("tag.id", "=", args.tagId)
-  //       .returningAll()
-  //       .executeTakeFirstOrThrow(),
-  // }),
+  changePassword: t.boolean({
+    args: {
+      password: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      await ctx.db
+        .updateTable("user")
+        .set({ password: hashSync(args.password) })
+        .where("user.id", "=", ctx.user.id)
+        .execute();
+      return true;
+    },
+  }),
 
   //////////////////////////////////////////////////////////////////////////////
   // tag ///////////////////////////////////////////////////////////////////////

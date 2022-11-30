@@ -37,7 +37,6 @@ const migrateToLatest = async () => {
    */
   try {
     // todo: annoying message
-    console.log("creating admin account");
     await db
       .insertInto("user")
       .values({
@@ -46,6 +45,7 @@ const migrateToLatest = async () => {
         password: hashSync("pass"),
       })
       .executeTakeFirstOrThrow();
+    console.log("created admin account");
   } catch {
     //
   }
