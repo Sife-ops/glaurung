@@ -5,5 +5,6 @@ services:
       - ~/database:/app/database
     environment:
       - GLAURUNG_ACCESS_TOKEN_SECRET=${GLAURUNG_ACCESS_TOKEN_SECRET}
+      - PROD=true
     ports:
       - "80:4000"
