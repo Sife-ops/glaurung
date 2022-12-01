@@ -112,7 +112,7 @@ builder.mutationFields((t) => ({
     type: ServiceType,
     args: {
       serviceId: t.arg.int({ required: true }),
-      tagIds: t.arg.intList({ required: true }),
+      tags: t.arg.stringList({ required: true }),
     },
     resolve: async (_, args, ctx) => {
       await ctx.db
@@ -120,12 +120,23 @@ builder.mutationFields((t) => ({
         .where("serviceTag.serviceId", "=", args.serviceId)
         .execute();
 
-      if (args.tagIds.length > 0) {
-        for (const tagId of args.tagIds) {
-          await ctx.db
-            .insertInto("serviceTag")
-            .values({ serviceId: args.serviceId, tagId })
-            .execute();
+      if (args.tags.length > 0) {
+        for (const tag of args.tags) {
+          try {
+            const { id } = await ctx.db
+              .selectFrom("tag")
+              .where("tag.userId", "=", ctx.user.id)
+              .where("tag.title", "=", tag)
+              .selectAll()
+              .executeTakeFirstOrThrow();
+
+            await ctx.db
+              .insertInto("serviceTag")
+              .values({ serviceId: args.serviceId, tagId: id })
+              .execute();
+          } catch {
+            continue;
+          }
         }
       }
 
@@ -177,10 +188,10 @@ builder.mutationFields((t) => ({
         includeScore: true,
         keys: args.keys,
       }).search(args.pattern);
-      console.log("result", result); // todo: remove logging
+      // console.log("result", result); // todo: remove logging
 
       const unique = lodash.uniqBy(result, (o) => o.item.id);
-      console.log("unique", unique);
+      // console.log("unique", unique);
 
       return unique.map((e) => ({ ...e.item })) as {
         id: number;
@@ -452,5 +463,145 @@ builder.mutationFields((t) => ({
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
         .executeTakeFirstOrThrow(),
+  }),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // other /////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+
+  import: t.string({
+    args: {
+      json: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      // todo: zod
+      // todo: too much any
+      const { items } = JSON.parse(args.json);
+      const logins = items.filter((e: any) => e.type === 1);
+
+      let skipped: any[] = [];
+
+      for (const login of logins) {
+        console.log("importing", login);
+
+        // skip if missing username and/or password
+        const { username, password } = login.login;
+        if (!username || !password) {
+          skipped = [
+            ...skipped,
+            {
+              item: login,
+              failure: {
+                reason: "missing username and/or password",
+              },
+            },
+          ];
+          continue;
+        }
+
+        // skip duplicate services
+        const found = await ctx.db
+          .selectFrom("service")
+          .where("service.title", "=", login.name)
+          .selectAll()
+          .execute();
+        if (found.length > 0) {
+          const service = found[0];
+          const profile = await ctx.db
+            .insertInto("profile")
+            .values({
+              serviceId: service.id,
+              title: `alt-${found.length}`,
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow();
+
+          await ctx.db
+            .insertInto("profileField")
+            .values({
+              profileId: profile.id,
+              key: "username",
+              value: username,
+            })
+            .execute();
+
+          await ctx.db
+            .insertInto("profileField")
+            .values({
+              profileId: profile.id,
+              key: "password",
+              value: password,
+            })
+            .execute();
+
+          continue;
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+
+        const service = await ctx.db
+          .insertInto("service")
+          .values({
+            title: login.name,
+            userId: ctx.user.id,
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+
+        const url = login.login?.uris?.find(
+          (e: any) => typeof e.uri === "string"
+        );
+        if (url) {
+          await ctx.db
+            .insertInto("serviceField")
+            .values({
+              serviceId: service.id,
+              key: "url",
+              value: url.uri,
+            })
+            .execute();
+        }
+
+        if (login.notes) {
+          await ctx.db
+            .insertInto("serviceField")
+            .values({
+              serviceId: service.id,
+              key: "notes",
+              value: login.notes,
+            })
+            .execute();
+        }
+
+        const profile = await ctx.db
+          .insertInto("profile")
+          .values({
+            serviceId: service.id,
+            title: "main",
+          })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+
+        await ctx.db
+          .insertInto("profileField")
+          .values({
+            profileId: profile.id,
+            key: "username",
+            value: username,
+          })
+          .execute();
+
+        await ctx.db
+          .insertInto("profileField")
+          .values({
+            profileId: profile.id,
+            key: "password",
+            value: password,
+          })
+          .execute();
+      }
+
+      return JSON.stringify(skipped);
+    },
   }),
 }));
