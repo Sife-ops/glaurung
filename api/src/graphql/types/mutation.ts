@@ -1,6 +1,6 @@
 import lodash from "lodash";
-import { ProfileType } from "./profile";
-import { ServiceType } from "./service";
+import { ProfileFieldType, ProfileType } from "./profile";
+import { ServiceFieldType, ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
@@ -228,7 +228,8 @@ builder.mutationFields((t) => ({
   //////////////////////////////////////////////////////////////////////////////
 
   createServiceField: t.field({
-    type: ServiceType,
+    // todo: use service field type
+    type: ServiceFieldType,
     args: {
       serviceId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
@@ -242,62 +243,45 @@ builder.mutationFields((t) => ({
         .selectAll()
         .executeTakeFirst();
       if (found) throw new Error("duplicate serviceField key");
-      await ctx.db
+      return await ctx.db
         .insertInto("serviceField")
         .values({
           serviceId: args.serviceId,
           key: args.key,
           value: args.value,
         })
-        .execute();
-      return await ctx.db
-        .selectFrom("service")
-        .where("service.id", "=", args.serviceId)
-        .selectAll()
+        .returningAll()
         .executeTakeFirstOrThrow();
     },
   }),
 
   updateServiceField: t.field({
-    type: ServiceType,
+    type: ServiceFieldType,
     args: {
       serviceFieldId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
     },
-    resolve: async (_, args, ctx) => {
-      const updated = await ctx.db
+    resolve: (_, args, ctx) =>
+      ctx.db
         .updateTable("serviceField")
         .set({ key: args.key, value: args.value })
         .where("serviceField.id", "=", args.serviceFieldId)
         .returningAll()
-        .executeTakeFirstOrThrow();
-      return await ctx.db
-        .selectFrom("service")
-        .where("service.id", "=", updated.serviceId)
-        .selectAll()
-        .executeTakeFirstOrThrow();
-    },
+        .executeTakeFirstOrThrow(),
   }),
 
   deleteServiceField: t.field({
-    type: ServiceType,
+    type: ServiceFieldType,
     args: {
       serviceFieldId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) => {
-      const deleted = await ctx.db
-        .deleteFrom("serviceField") //
+    resolve: async (_, args, ctx) =>
+      ctx.db
+        .deleteFrom("serviceField")
         .where("serviceField.id", "=", args.serviceFieldId)
         .returningAll()
-        .executeTakeFirstOrThrow();
-
-      return await ctx.db
-        .selectFrom("service")
-        .where("service.id", "=", deleted.id)
-        .selectAll()
-        .executeTakeFirstOrThrow();
-    },
+        .executeTakeFirstOrThrow(),
   }),
 
   //////////////////////////////////////////////////////////////////////////////
@@ -359,7 +343,7 @@ builder.mutationFields((t) => ({
   //////////////////////////////////////////////////////////////////////////////
 
   createProfileField: t.field({
-    type: ProfileType,
+    type: ProfileFieldType,
     args: {
       profileId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
@@ -379,60 +363,44 @@ builder.mutationFields((t) => ({
       } else {
         value = args.value;
       }
-      await ctx.db
+      return await ctx.db
         .insertInto("profileField")
         .values({
           profileId: args.profileId,
           key: args.key,
           value,
         })
-        .execute();
-      return await ctx.db
-        .selectFrom("profile")
-        .where("profile.id", "=", args.profileId)
-        .selectAll()
+        .returningAll()
         .executeTakeFirstOrThrow();
     },
   }),
 
   updateProfileField: t.field({
-    type: ProfileType,
+    type: ProfileFieldType,
     args: {
       profileFieldId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
     },
-    resolve: async (_, args, ctx) => {
-      const updated = await ctx.db
+    resolve: async (_, args, ctx) =>
+      ctx.db
         .updateTable("profileField")
         .set({ key: args.key, value: args.value })
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
-        .executeTakeFirstOrThrow();
-      return await ctx.db
-        .selectFrom("profile")
-        .where("profile.id", "=", updated.profileId)
-        .selectAll()
-        .executeTakeFirstOrThrow();
-    },
+        .executeTakeFirstOrThrow(),
   }),
 
   deleteProfileField: t.field({
-    type: ProfileType,
+    type: ProfileFieldType,
     args: {
       profileFieldId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) => {
-      const deleted = await ctx.db
+    resolve: async (_, args, ctx) =>
+      ctx.db
         .deleteFrom("profileField") //
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
-        .executeTakeFirstOrThrow();
-      return await ctx.db
-        .selectFrom("profile")
-        .where("profile.id", "=", deleted.id)
-        .selectAll()
-        .executeTakeFirstOrThrow();
-    },
+        .executeTakeFirstOrThrow(),
   }),
 }));
