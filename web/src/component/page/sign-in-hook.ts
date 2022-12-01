@@ -32,12 +32,8 @@ export const useSignIn = () => {
       //     setError(error.message.split("[GraphQL] ")[1]);
       //   }
     } else if (!fetching && data) {
-      console.log(data);
-      //   window.location.href = `${data.signIn}${
-      //     redirect ? `&redirect=${redirect}` : ""
-      //   }`;
       localStorage.setItem("accessToken", data.signIn);
-      //   localStorage.setItem("refreshToken", refreshToken);
+      authContext.setAccessToken(data.signIn);
       authContext.setSignedIn(true);
       nav("/home");
     }

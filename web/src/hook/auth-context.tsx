@@ -3,33 +3,37 @@ import React, { useState, useEffect } from "react";
 type AuthContextType = {
   signedIn: boolean;
   setSignedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  signOut: () => void;
+  accessToken: string;
+  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
+  // signOut: () => void;
 };
 
 const authContext = (): AuthContextType => {
   const [signedIn, setSignedIn] = useState(true);
+  const [accessToken, setAccessToken] = useState("");
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    // const refreshToken = localStorage.getItem("refreshToken"); // todo: refresh token
-    // if (accessToken && refreshToken) {
-    if (accessToken) {
+    const accessToken_ = localStorage.getItem("accessToken");
+    if (accessToken_) {
       setSignedIn(true);
+      setAccessToken(accessToken_);
     } else {
       setSignedIn(false);
+      setAccessToken("");
     }
   }, []);
 
-  const signOut = () => {
-    localStorage.clear();
-    window.location.href =
-      import.meta.env.VITE_REGISTRAR_URL + "/sign-in?serviceId=feedshare";
-  };
+  // const signOut = () => {
+  //   localStorage.clear();
+  //   window.location.href =
+  //     import.meta.env.VITE_REGISTRAR_URL + "/sign-in?serviceId=feedshare";
+  // };
 
   return {
     signedIn,
     setSignedIn,
-    signOut,
+    accessToken,
+    setAccessToken,
   };
 };
 
