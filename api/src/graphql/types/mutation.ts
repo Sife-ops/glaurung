@@ -152,6 +152,7 @@ builder.mutationFields((t) => ({
   // service ///////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
+  // todo: move to query
   search: t.field({
     type: [ServiceType],
     args: {
@@ -201,20 +202,28 @@ builder.mutationFields((t) => ({
     },
   }),
 
+  // todo: move to query
   servicesWithTags: t.field({
     type: [ServiceType],
     args: {
-      tagIds: t.arg.intList({ required: true, defaultValue: [] }), // todo: allow tag titles
+      tags: t.arg.stringList({ required: true, defaultValue: [] }),
       mode: t.arg.string({ required: true, defaultValue: "and" }), // todo: literal
     },
     resolve: async (_, args, ctx) => {
       let builder = ctx.db
         .selectFrom("service")
         .where("userId", "=", ctx.user.id);
-      if (args.tagIds.length > 0) {
+      if (args.tags.length > 0) {
+        const tags = await ctx.db // todo: use single query
+          .selectFrom("tag")
+          .where("tag.userId", "=", ctx.user.id)
+          .where("tag.title", "in", args.tags)
+          .selectAll()
+          .execute();
+        const tagIds = tags.map((tag) => tag.id);
         const services = await builder
           .innerJoin("serviceTag", "serviceTag.serviceId", "service.id")
-          .where("serviceTag.tagId", "in", args.tagIds)
+          .where("serviceTag.tagId", "in", tagIds)
           .select(["service.id as id", "tagId", "userId", "title"])
           .execute();
         const groups = lodash.groupBy(services, (e) => e.id);
@@ -223,7 +232,7 @@ builder.mutationFields((t) => ({
         );
         if (args.mode === "and") {
           servicesWithTags = servicesWithTags.filter((group) =>
-            args.tagIds.every((tagId) =>
+            tagIds.every((tagId) =>
               group.find((service) => service.tagId === tagId)
             )
           );
