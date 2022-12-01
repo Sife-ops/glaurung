@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import lodash from "lodash";
 import { ProfileFieldType, ProfileType } from "./profile";
 import { ServiceFieldType, ServiceType } from "./service";
@@ -139,6 +140,55 @@ builder.mutationFields((t) => ({
   //////////////////////////////////////////////////////////////////////////////
   // service ///////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
+
+  search: t.field({
+    type: [ServiceType],
+    args: {
+      keys: t.arg.stringList({ required: true, defaultValue: ["title"] }),
+      pattern: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const list = await ctx.db
+        .selectFrom("service")
+        .where("service.userId", "=", ctx.user.id)
+        .fullJoin("serviceField", "serviceField.serviceId", "service.id")
+        .fullJoin("serviceTag", "serviceTag.serviceId", "service.id")
+        .fullJoin("tag", "tag.id", "serviceTag.tagId")
+        .fullJoin("profile", "profile.serviceId", "service.id")
+        .fullJoin("profileField", "profileField.profileId", "profile.id")
+        .select([
+          "service.id as id",
+          "service.userId as userId",
+          "service.title as title",
+
+          "service.title as serviceTitle",
+          "serviceField.key as serviceFieldKey",
+          "serviceField.value as serviceFieldValue",
+
+          "profile.title as profileTitle",
+          "profileField.key as profileFieldKey",
+          "profileField.value as profileFieldValue",
+
+          "tag.title as tagTitle",
+        ])
+        .execute();
+
+      const result = new Fuse(list, {
+        includeScore: true,
+        keys: args.keys,
+      }).search(args.pattern);
+      console.log("result", result); // todo: remove logging
+
+      const unique = lodash.uniqBy(result, (o) => o.item.id);
+      console.log("unique", unique);
+
+      return unique.map((e) => ({ ...e.item })) as {
+        id: number;
+        userId: number;
+        title: string;
+      }[];
+    },
+  }),
 
   servicesWithTags: t.field({
     type: [ServiceType],
