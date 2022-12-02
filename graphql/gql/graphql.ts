@@ -16,24 +16,32 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  changePassword: Scalars['Boolean'];
   createProfile: Profile;
-  createProfileField: Profile;
+  createProfileField: ProfileField;
   createService: Service;
-  createServiceField: Service;
+  createServiceField: ServiceField;
   createTag: Tag;
   deleteProfile: Profile;
-  deleteProfileField: Profile;
+  deleteProfileField: ProfileField;
   deleteService: Service;
-  deleteServiceField: Service;
+  deleteServiceField: ServiceField;
   deleteTag: Tag;
+  import: Scalars['String'];
+  search: Array<Service>;
   servicesWithTags: Array<Service>;
   signIn: Scalars['String'];
   updateProfile: Profile;
-  updateProfileField: Profile;
+  updateProfileField: ProfileField;
   updateService: Service;
-  updateServiceField: Service;
+  updateServiceField: ServiceField;
   updateServiceTags: Service;
   updateTag: Tag;
+};
+
+
+export type MutationChangePasswordArgs = {
+  password: Scalars['String'];
 };
 
 
@@ -92,9 +100,20 @@ export type MutationDeleteTagArgs = {
 };
 
 
+export type MutationImportArgs = {
+  json: Scalars['String'];
+};
+
+
+export type MutationSearchArgs = {
+  keys?: Array<Scalars['String']>;
+  pattern: Scalars['String'];
+};
+
+
 export type MutationServicesWithTagsArgs = {
   mode?: Scalars['String'];
-  tagIds?: Array<Scalars['Int']>;
+  tags?: Array<Scalars['String']>;
 };
 
 
@@ -132,7 +151,7 @@ export type MutationUpdateServiceFieldArgs = {
 
 export type MutationUpdateServiceTagsArgs = {
   serviceId: Scalars['Int'];
-  tagIds: Array<Scalars['Int']>;
+  tags: Array<Scalars['String']>;
 };
 
 
@@ -188,12 +207,13 @@ export type Tag = {
   title: Scalars['String'];
 };
 
-export type CreateServiceMutationVariables = Exact<{
-  title: Scalars['String'];
+export type ServicesWithTagsMutationVariables = Exact<{
+  tags: Array<Scalars['String']> | Scalars['String'];
+  mode: Scalars['String'];
 }>;
 
 
-export type CreateServiceMutation = { __typename?: 'Mutation', createService: { __typename?: 'Service', id: string } };
+export type ServicesWithTagsMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', id: string, key: string, value: string }>, profiles: Array<{ __typename?: 'Profile', id: string, title: string, fields: Array<{ __typename?: 'ProfileField', id: string, key: string, value: string }> }>, tags: Array<{ __typename?: 'Tag', id: string, title: string }> }> };
 
 export type SignInMutationVariables = Exact<{
   username: Scalars['String'];
@@ -203,36 +223,6 @@ export type SignInMutationVariables = Exact<{
 
 export type SignInMutation = { __typename?: 'Mutation', signIn: string };
 
-export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
-
-export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id: string, title: string }> };
-
-export type UpdateServiceTagsMutationVariables = Exact<{
-  serviceId: Scalars['Int'];
-  tagIds: Array<Scalars['Int']> | Scalars['Int'];
-}>;
-
-
-export type UpdateServiceTagsMutation = { __typename?: 'Mutation', updateServiceTags: { __typename?: 'Service', id: string } };
-
-export type AllServicesMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AllServicesMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
-
-export type ServicesWithTagsMutationVariables = Exact<{
-  tagIds: Array<Scalars['Int']> | Scalars['Int'];
-  mode?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type ServicesWithTagsMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
-
-
-export const CreateServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"title"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"title"},"value":{"kind":"Variable","name":{"kind":"Name","value":"title"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateServiceMutation, CreateServiceMutationVariables>;
+export const ServicesWithTagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"servicesWithTags"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"tags"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"mode"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"servicesWithTags"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"tags"},"value":{"kind":"Variable","name":{"kind":"Name","value":"tags"}}},{"kind":"Argument","name":{"kind":"Name","value":"mode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"mode"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"fields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"profiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"fields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]}}]} as unknown as DocumentNode<ServicesWithTagsMutation, ServicesWithTagsMutationVariables>;
 export const SignInDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"signIn"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signIn"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}]}]}}]} as unknown as DocumentNode<SignInMutation, SignInMutationVariables>;
-export const TagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]} as unknown as DocumentNode<TagsQuery, TagsQueryVariables>;
-export const UpdateServiceTagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"updateServiceTags"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"tagIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateServiceTags"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"serviceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}}},{"kind":"Argument","name":{"kind":"Name","value":"tagIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"tagIds"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateServiceTagsMutation, UpdateServiceTagsMutationVariables>;
-export const AllServicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"allServices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"servicesWithTags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"fields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}}]}}]} as unknown as DocumentNode<AllServicesMutation, AllServicesMutationVariables>;
-export const ServicesWithTagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"servicesWithTags"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"tagIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"mode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"servicesWithTags"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"tagIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"tagIds"}}},{"kind":"Argument","name":{"kind":"Name","value":"mode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"mode"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"fields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}}]}}]} as unknown as DocumentNode<ServicesWithTagsMutation, ServicesWithTagsMutationVariables>;

@@ -33,6 +33,9 @@ if (prod) {
     bodyParser.json(),
     (req, res, next) => {
       try {
+        // next();
+        // return;
+
         const parsedQuery = parse(req.body.query);
         const firstFieldName = firstFieldValueNameFromOperation(
           firstOperationDefinition(parsedQuery)

@@ -17,24 +17,32 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  changePassword: Scalars['Boolean'];
   createProfile: Profile;
-  createProfileField: Profile;
+  createProfileField: ProfileField;
   createService: Service;
-  createServiceField: Service;
+  createServiceField: ServiceField;
   createTag: Tag;
   deleteProfile: Profile;
-  deleteProfileField: Profile;
+  deleteProfileField: ProfileField;
   deleteService: Service;
-  deleteServiceField: Service;
+  deleteServiceField: ServiceField;
   deleteTag: Tag;
+  import: Scalars['String'];
+  search: Array<Service>;
   servicesWithTags: Array<Service>;
   signIn: Scalars['String'];
   updateProfile: Profile;
-  updateProfileField: Profile;
+  updateProfileField: ProfileField;
   updateService: Service;
-  updateServiceField: Service;
+  updateServiceField: ServiceField;
   updateServiceTags: Service;
   updateTag: Tag;
+};
+
+
+export type MutationChangePasswordArgs = {
+  password: Scalars['String'];
 };
 
 
@@ -93,9 +101,20 @@ export type MutationDeleteTagArgs = {
 };
 
 
+export type MutationImportArgs = {
+  json: Scalars['String'];
+};
+
+
+export type MutationSearchArgs = {
+  keys?: Array<Scalars['String']>;
+  pattern: Scalars['String'];
+};
+
+
 export type MutationServicesWithTagsArgs = {
   mode?: Scalars['String'];
-  tagIds?: Array<Scalars['Int']>;
+  tags?: Array<Scalars['String']>;
 };
 
 
@@ -133,7 +152,7 @@ export type MutationUpdateServiceFieldArgs = {
 
 export type MutationUpdateServiceTagsArgs = {
   serviceId: Scalars['Int'];
-  tagIds: Array<Scalars['Int']>;
+  tags: Array<Scalars['String']>;
 };
 
 
@@ -189,12 +208,13 @@ export type Tag = {
   title: Scalars['String'];
 };
 
-export type CreateServiceMutationVariables = Exact<{
-  title: Scalars['String'];
+export type ServicesWithTagsMutationVariables = Exact<{
+  tags: Array<Scalars['String']> | Scalars['String'];
+  mode: Scalars['String'];
 }>;
 
 
-export type CreateServiceMutation = { __typename?: 'Mutation', createService: { __typename?: 'Service', id: string } };
+export type ServicesWithTagsMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', id: string, key: string, value: string }>, profiles: Array<{ __typename?: 'Profile', id: string, title: string, fields: Array<{ __typename?: 'ProfileField', id: string, key: string, value: string }> }>, tags: Array<{ __typename?: 'Tag', id: string, title: string }> }> };
 
 export type SignInMutationVariables = Exact<{
   username: Scalars['String'];
@@ -204,43 +224,36 @@ export type SignInMutationVariables = Exact<{
 
 export type SignInMutation = { __typename?: 'Mutation', signIn: string };
 
-export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
-
-export type TagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id: string, title: string }> };
-
-export type UpdateServiceTagsMutationVariables = Exact<{
-  serviceId: Scalars['Int'];
-  tagIds: Array<Scalars['Int']> | Scalars['Int'];
-}>;
-
-
-export type UpdateServiceTagsMutation = { __typename?: 'Mutation', updateServiceTags: { __typename?: 'Service', id: string } };
-
-export type AllServicesMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AllServicesMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
-
-export type ServicesWithTagsMutationVariables = Exact<{
-  tagIds: Array<Scalars['Int']> | Scalars['Int'];
-  mode?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type ServicesWithTagsMutation = { __typename?: 'Mutation', servicesWithTags: Array<{ __typename?: 'Service', id: string, title: string, fields: Array<{ __typename?: 'ServiceField', key: string, value: string }> }> };
-
-
-export const CreateServiceDocument = gql`
-    mutation createService($title: String!) {
-  createService(title: $title) {
+export const ServicesWithTagsDocument = gql`
+    mutation servicesWithTags($tags: [String!]!, $mode: String!) {
+  servicesWithTags(tags: $tags, mode: $mode) {
     id
+    title
+    fields {
+      id
+      key
+      value
+    }
+    profiles {
+      id
+      title
+      fields {
+        id
+        key
+        value
+      }
+    }
+    tags {
+      id
+      title
+    }
   }
 }
     `;
 
-export function useCreateServiceMutation() {
-  return Urql.useMutation<CreateServiceMutation, CreateServiceMutationVariables>(CreateServiceDocument);
+export function useServicesWithTagsMutation() {
+  return Urql.useMutation<ServicesWithTagsMutation, ServicesWithTagsMutationVariables>(ServicesWithTagsDocument);
 };
 export const SignInDocument = gql`
     mutation signIn($username: String!, $password: String!) {
@@ -250,59 +263,4 @@ export const SignInDocument = gql`
 
 export function useSignInMutation() {
   return Urql.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument);
-};
-export const TagsDocument = gql`
-    query tags {
-  tags {
-    id
-    title
-  }
-}
-    `;
-
-export function useTagsQuery(options?: Omit<Urql.UseQueryArgs<TagsQueryVariables>, 'query'>) {
-  return Urql.useQuery<TagsQuery, TagsQueryVariables>({ query: TagsDocument, ...options });
-};
-export const UpdateServiceTagsDocument = gql`
-    mutation updateServiceTags($serviceId: Int!, $tagIds: [Int!]!) {
-  updateServiceTags(serviceId: $serviceId, tagIds: $tagIds) {
-    id
-  }
-}
-    `;
-
-export function useUpdateServiceTagsMutation() {
-  return Urql.useMutation<UpdateServiceTagsMutation, UpdateServiceTagsMutationVariables>(UpdateServiceTagsDocument);
-};
-export const AllServicesDocument = gql`
-    mutation allServices {
-  servicesWithTags {
-    id
-    title
-    fields {
-      key
-      value
-    }
-  }
-}
-    `;
-
-export function useAllServicesMutation() {
-  return Urql.useMutation<AllServicesMutation, AllServicesMutationVariables>(AllServicesDocument);
-};
-export const ServicesWithTagsDocument = gql`
-    mutation servicesWithTags($tagIds: [Int!]!, $mode: String) {
-  servicesWithTags(tagIds: $tagIds, mode: $mode) {
-    id
-    title
-    fields {
-      key
-      value
-    }
-  }
-}
-    `;
-
-export function useServicesWithTagsMutation() {
-  return Urql.useMutation<ServicesWithTagsMutation, ServicesWithTagsMutationVariables>(ServicesWithTagsDocument);
 };

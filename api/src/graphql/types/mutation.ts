@@ -520,7 +520,8 @@ builder.mutationFields((t) => ({
             .insertInto("profile")
             .values({
               serviceId: service.id,
-              title: `alt-${found.length}`,
+              // title: `alt-${found.length}`, // todo: why no work?
+              title: "alt",
             })
             .returningAll()
             .executeTakeFirstOrThrow();

@@ -12,6 +12,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Home } from "./component/page/home";
+import { Graphql } from "./component/page/graphql";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<PrivateRoutes />}>
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/graphql" element={<Graphql />} />
         </Route>
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/error" element={<div>404</div>} />

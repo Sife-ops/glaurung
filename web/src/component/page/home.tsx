@@ -1,89 +1,161 @@
-import { GraphiQL } from "graphiql";
-import { createGraphiQLFetcher } from "@graphiql/toolkit";
-import { useState } from "react";
-import { useAuthContext } from "../../hook/auth-context";
+import { graphql } from "@glaurung/graphql/gql";
+import { Service, useServicesWithTagsMutation } from "@glaurung/graphql/urql";
+import { useEffect, useState } from "react";
+
+graphql(`
+  mutation servicesWithTags($tags: [String!]!, $mode: String!) {
+    servicesWithTags(tags: $tags, mode: $mode) {
+      id
+      title
+      fields {
+        id
+        key
+        value
+      }
+      profiles {
+        id
+        title
+        fields {
+          id
+          key
+          value
+        }
+      }
+      tags {
+        id
+        title
+      }
+    }
+  }
+`);
 
 export const Home = () => {
-  const auth = useAuthContext();
+  const [tagsInput, setTagsInput] = useState("");
 
-  const fetcher = createGraphiQLFetcher({
-    url: import.meta.env.VITE_API_URL || "http://localhost:4000",
-    headers: { authorization: auth.accessToken },
-  });
+  const [services, setServices] = useState<Service[]>();
+  const [_, m1] = useServicesWithTagsMutation();
 
-  const [leftExpanded, setLeftExpanded] = useState(true);
-  const [rightExpanded, setRightExpanded] = useState(false);
+  useEffect(() => {
+    m1({
+      mode: "and",
+      tags: [],
+    }).then((e) => {
+      e.data && setServices(e.data.servicesWithTags as Service[]);
+    });
+  }, []);
 
   return (
-    <div
-      style={{
-        display: "flex",
-      }}
-    >
-      {leftExpanded && (
-        <div
-          style={{
-            width: "100%",
-          }}
-        >
-          <GraphiQL fetcher={fetcher} />
-        </div>
-      )}
-      <div
-        style={{
-          backgroundColor: "lightblue",
-          minWidth: "3rem",
-
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-around",
-          alignItems: "center",
+    <div>
+      <div>tags</div>
+      <input onChange={(e) => setTagsInput(e.target.value)} />
+      <button
+        onClick={() => {
+          m1({
+            mode: "and",
+            tags: tagsInput ? tagsInput.split(" ") : [],
+          }).then((e) => {
+            e.data && setServices(e.data.servicesWithTags as Service[]);
+          });
         }}
       >
-        <div
-          style={controlStyle}
-          onClick={() => {
-            setLeftExpanded(true);
-            setRightExpanded(false);
-          }}
-        >
-          <div>{">>"}</div>
-        </div>
-        <div
-          style={controlStyle}
-          onClick={() => {
-            setLeftExpanded(true);
-            setRightExpanded(true);
-          }}
-        >
-          {"=="}
-        </div>
-        <div
-          style={controlStyle}
-          onClick={() => {
-            setLeftExpanded(false);
-            setRightExpanded(true);
-          }}
-        >
-          {"<<"}
-        </div>
+        go
+      </button>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+        }}
+      >
+        {services &&
+          services.map((service) => (
+            <div
+              key={service.id}
+              style={{
+                // border: "1px solid green",
+                display: "flex",
+                gap: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  //   border: "1px solid red",
+                  minWidth: "30%",
+                  maxWidth: "30%",
+                }}
+              >
+                <div>service:</div>
+                <div>id: {service.id}</div>
+                <div>title: {service.title}</div>
+
+                {service.fields.length > 0 &&
+                  service.fields.map((field) => {
+                    if (field.key === "url") {
+                      return (
+                        <div
+                          style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {field.key}:{" "}
+                          <a href={field.value} target={"_blank"}>
+                            {field.value}
+                          </a>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div>
+                          {field.key}: {field.value}
+                        </div>
+                      );
+                    }
+                  })}
+              </div>
+              <div
+                style={
+                  {
+                    //   border: "1px solid purple",
+                  }
+                }
+              >
+                <div>profiles:</div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "1rem",
+                  }}
+                >
+                  {service.profiles.length > 0 &&
+                    service.profiles.map((profile) => (
+                      <div>
+                        <div>id: {profile.id}</div>
+                        <div>title: {profile.title}</div>
+                        {profile.fields.length > 0 &&
+                          profile.fields.map((field) => (
+                            <div>
+                              {field.key}:{" "}
+                              <span
+                                style={{
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  navigator.clipboard.writeText(field.value)
+                                }
+                              >
+                                {field.value}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          ))}
       </div>
-      {rightExpanded && (
-        <div
-          style={{
-            width: "100%",
-          }}
-        />
-      )}
     </div>
   );
-};
-
-const controlStyle = {
-  border: "1px solid purple",
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 };
