@@ -1,5 +1,6 @@
-import { graphql } from "@glaurung/graphql/gql";
+import Fuse from "fuse.js";
 import { Service, useServicesWithTagsMutation } from "@glaurung/graphql/urql";
+import { graphql } from "@glaurung/graphql/gql";
 import { useEffect, useState } from "react";
 
 graphql(`
@@ -31,9 +32,10 @@ graphql(`
 
 export const Home = () => {
   const [tagsInput, setTagsInput] = useState("");
+  const [filterInput, setFilterInput] = useState("");
 
   const [services, setServices] = useState<Service[]>();
-  const [_, m1] = useServicesWithTagsMutation();
+  const [ms1, m1] = useServicesWithTagsMutation();
 
   useEffect(() => {
     m1({
@@ -44,12 +46,30 @@ export const Home = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (ms1.data) {
+      if (filterInput) {
+        const result = new Fuse(ms1.data.servicesWithTags, {
+          includeScore: true,
+          keys: ["title"],
+        }).search(filterInput);
+        setServices(result.map((e) => e.item) as Service[]);
+      } else {
+        setServices(ms1.data.servicesWithTags as Service[]);
+      }
+    }
+  }, [filterInput]);
+
   return (
-    <div>
-      <div>tags</div>
-      <input onChange={(e) => setTagsInput(e.target.value)} />
-      <button
-        onClick={() => {
+    <div
+      style={{
+        margin: "1rem",
+      }}
+    >
+      <div>tags:</div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
           m1({
             mode: "and",
             tags: tagsInput ? tagsInput.split(" ") : [],
@@ -58,8 +78,13 @@ export const Home = () => {
           });
         }}
       >
-        go
-      </button>
+        <input onChange={(e) => setTagsInput(e.target.value)} />
+        <button type="submit">go</button>
+      </form>
+      <div>filter:</div>
+      <input onChange={(e) => setFilterInput(e.target.value)} />
+      <br />
+      <br />
       <div
         style={{
           display: "flex",
@@ -72,9 +97,10 @@ export const Home = () => {
             <div
               key={service.id}
               style={{
-                // border: "1px solid green",
+                border: "1px solid green",
                 display: "flex",
                 gap: "1rem",
+                padding: "1rem",
               }}
             >
               <div
@@ -145,7 +171,9 @@ export const Home = () => {
                                   navigator.clipboard.writeText(field.value)
                                 }
                               >
-                                {field.value}
+                                {field.key === "password"
+                                  ? "****************"
+                                  : field.value}
                               </span>
                             </div>
                           ))}
