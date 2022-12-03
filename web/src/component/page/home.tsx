@@ -1,5 +1,9 @@
 import Fuse from "fuse.js";
-import { Service, useServicesWithTagsMutation } from "@glaurung/graphql/urql";
+import {
+  ProfileField,
+  Service,
+  useServicesWithTagsMutation,
+} from "@glaurung/graphql/urql";
 import { graphql } from "@glaurung/graphql/gql";
 import { useEffect, useState } from "react";
 
@@ -139,7 +143,7 @@ export const Home = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {field.key}:{" "}
+                          {field.key} ({field.id}):{" "}
                           <a href={field.value} target={"_blank"}>
                             {field.value}
                           </a>
@@ -148,7 +152,7 @@ export const Home = () => {
                     } else {
                       return (
                         <div>
-                          {field.key}: {field.value}
+                          {field.key} ({field.id}): {field.value}
                         </div>
                       );
                     }
@@ -181,13 +185,13 @@ export const Home = () => {
   );
 };
 
-const C1: React.FC<{ field: { key: string; value: string } }> = (p) => {
+const C1: React.FC<{ field: ProfileField }> = (p) => {
   const [showPassword, setShowPassword] = useState(false);
 
   if (p.field.key === "password") {
     return (
       <div>
-        {p.field.key}:{" "}
+        {p.field.key} ({p.field.id}):{" "}
         <span
           style={{
             cursor: "pointer",
@@ -202,7 +206,7 @@ const C1: React.FC<{ field: { key: string; value: string } }> = (p) => {
   } else {
     return (
       <div>
-        {p.field.key}:{" "}
+        {p.field.key} ({p.field.id}):{" "}
         <span
           style={{
             cursor: "pointer",
