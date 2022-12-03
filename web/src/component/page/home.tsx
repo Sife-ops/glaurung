@@ -92,6 +92,22 @@ export const Home = () => {
           gap: "1rem",
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+          }}
+        >
+          <div
+            style={{
+              minWidth: "30%",
+              maxWidth: "30%",
+            }}
+          >
+            service
+          </div>
+          <div>profiles</div>
+        </div>
         {services &&
           services.map((service) => (
             <div
@@ -105,12 +121,10 @@ export const Home = () => {
             >
               <div
                 style={{
-                  //   border: "1px solid red",
                   minWidth: "30%",
                   maxWidth: "30%",
                 }}
               >
-                <div>service:</div>
                 <div>id: {service.id}</div>
                 <div>title: {service.title}</div>
 
@@ -140,14 +154,7 @@ export const Home = () => {
                     }
                   })}
               </div>
-              <div
-                style={
-                  {
-                    //   border: "1px solid purple",
-                  }
-                }
-              >
-                <div>profiles:</div>
+              <div>
                 <div
                   style={{
                     display: "flex",
@@ -161,21 +168,7 @@ export const Home = () => {
                         <div>title: {profile.title}</div>
                         {profile.fields.length > 0 &&
                           profile.fields.map((field) => (
-                            <div>
-                              {field.key}:{" "}
-                              <span
-                                style={{
-                                  cursor: "pointer",
-                                }}
-                                onClick={() =>
-                                  navigator.clipboard.writeText(field.value)
-                                }
-                              >
-                                {field.key === "password"
-                                  ? "****************"
-                                  : field.value}
-                              </span>
-                            </div>
+                            <C1 field={field} key={field.id} />
                           ))}
                       </div>
                     ))}
@@ -186,4 +179,39 @@ export const Home = () => {
       </div>
     </div>
   );
+};
+
+const C1: React.FC<{ field: { key: string; value: string } }> = (p) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  if (p.field.key === "password") {
+    return (
+      <div>
+        {p.field.key}:{" "}
+        <span
+          style={{
+            cursor: "pointer",
+          }}
+          onClick={() => navigator.clipboard.writeText(p.field.value)}
+        >
+          {showPassword ? p.field.value : "****************"}
+        </span>{" "}
+        <button onClick={() => setShowPassword((s) => !s)}>show</button>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        {p.field.key}:{" "}
+        <span
+          style={{
+            cursor: "pointer",
+          }}
+          onClick={() => navigator.clipboard.writeText(p.field.value)}
+        >
+          {p.field.key}
+        </span>
+      </div>
+    );
+  }
 };
