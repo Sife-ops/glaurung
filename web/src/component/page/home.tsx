@@ -1,5 +1,6 @@
 import Fuse from "fuse.js";
 import {
+  Profile,
   ProfileField,
   Service,
   useServicesWithTagsMutation,
@@ -137,6 +138,7 @@ export const Home = () => {
                     if (field.key === "url") {
                       return (
                         <div
+                          key={field.id}
                           style={{
                             whiteSpace: "nowrap",
                             overflow: "hidden",
@@ -151,7 +153,7 @@ export const Home = () => {
                       );
                     } else {
                       return (
-                        <div>
+                        <div key={field.id}>
                           {field.key} ({field.id}): {field.value}
                         </div>
                       );
@@ -165,17 +167,7 @@ export const Home = () => {
                     gap: "1rem",
                   }}
                 >
-                  {service.profiles.length > 0 &&
-                    service.profiles.map((profile) => (
-                      <div>
-                        <div>id: {profile.id}</div>
-                        <div>title: {profile.title}</div>
-                        {profile.fields.length > 0 &&
-                          profile.fields.map((field) => (
-                            <C1 field={field} key={field.id} />
-                          ))}
-                      </div>
-                    ))}
+                  <Profiles profiles={service.profiles} />
                 </div>
               </div>
             </div>
@@ -185,37 +177,90 @@ export const Home = () => {
   );
 };
 
-const C1: React.FC<{ field: ProfileField }> = (p) => {
-  const [showPassword, setShowPassword] = useState(false);
+const Profiles: React.FC<{ profiles: Profile[] }> = (p) => {
+  const main = p.profiles.find((f) => f.title === "main");
 
-  if (p.field.key === "password") {
+  let sorted: Profile[] = [];
+  if (main) sorted = [main, ...sorted];
+  sorted = [...sorted, ...p.profiles.filter((f) => f.title !== "main")];
+
+  if (sorted.length < 1) return null;
+  else {
     return (
-      <div>
-        {p.field.key} ({p.field.id}):{" "}
-        <span
-          style={{
-            cursor: "pointer",
-          }}
-          onClick={() => navigator.clipboard.writeText(p.field.value)}
-        >
-          {showPassword ? p.field.value : "****************"}
-        </span>{" "}
-        <button onClick={() => setShowPassword((s) => !s)}>show</button>
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        {p.field.key} ({p.field.id}):{" "}
-        <span
-          style={{
-            cursor: "pointer",
-          }}
-          onClick={() => navigator.clipboard.writeText(p.field.value)}
-        >
-          {p.field.value}
-        </span>
-      </div>
+      <>
+        {sorted.map((profile) => (
+          <div key={profile.id}>
+            <div>id: {profile.id}</div>
+            <div>title: {profile.title}</div>
+            <Fields fields={profile.fields} />
+          </div>
+        ))}
+      </>
     );
   }
+};
+
+const Fields: React.FC<{ fields: ProfileField[] }> = (p) => {
+  const email = p.fields.find((f) => f.key === "email");
+  const username = p.fields.find((f) => f.key === "username");
+  const password = p.fields.find((f) => f.key === "password");
+
+  let sorted: ProfileField[] = [];
+  if (password) sorted = [password, ...sorted];
+  if (username) sorted = [username, ...sorted];
+  if (email) sorted = [email, ...sorted];
+  sorted = [
+    ...sorted,
+    ...p.fields.filter((f) => {
+      if (f.key !== "email" && f.key !== "username" && f.key !== "password") {
+        return true;
+      } else {
+        return false;
+      }
+    }),
+  ];
+
+  if (sorted.length < 1) return null;
+  else {
+    return (
+      <>
+        {sorted.map((field) => (
+          <Field field={field} key={field.id} />
+        ))}
+      </>
+    );
+  }
+};
+
+const Field: React.FC<{ field: ProfileField }> = (p) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPassword = p.field.key === "password";
+
+  return (
+    <div>
+      {p.field.key} ({p.field.id}):{" "}
+      <span
+        style={{
+          cursor: "pointer",
+        }}
+        onClick={() => navigator.clipboard.writeText(p.field.value)}
+      >
+        {(() => {
+          if (isPassword) {
+            if (showPassword) {
+              return p.field.value;
+            } else {
+              return "****************";
+            }
+          } else {
+            return p.field.value;
+          }
+        })()}
+      </span>{" "}
+      {isPassword && (
+        <button onClick={() => setShowPassword((s) => !s)}>show</button>
+      )}
+    </div>
+  );
 };
