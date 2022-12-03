@@ -209,7 +209,7 @@ const C1: React.FC<{ field: { key: string; value: string } }> = (p) => {
           }}
           onClick={() => navigator.clipboard.writeText(p.field.value)}
         >
-          {p.field.key}
+          {p.field.value}
         </span>
       </div>
     );
