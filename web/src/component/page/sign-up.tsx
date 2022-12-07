@@ -1,16 +1,15 @@
-import { useSignIn } from "./sign-in-hook";
+import { useSignUp } from "./sign-up-hook";
 
-export const SignIn = () => {
-  const page = useSignIn();
+export const SignUp = () => {
+  const page = useSignUp();
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        page.signIn();
+        page.signUp();
       }}
     >
-      {/* todo: use label tag */}
       <span>Username</span>
       <br />
       <input
@@ -25,6 +24,16 @@ export const SignIn = () => {
         onChange={(e) => page.setPassword(e.target.value)}
         type={"password"}
         value={page.password}
+      />
+      <br />
+
+      <div>
+        <span>Admin Password</span>
+      </div>
+      <input
+        onChange={(e) => page.setAdminPassword(e.target.value)}
+        type={"password"}
+        value={page.adminPassword}
       />
       <br />
 

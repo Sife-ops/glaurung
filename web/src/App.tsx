@@ -1,6 +1,9 @@
 import "graphiql/graphiql.css";
 import React from "react";
+import { Graphql } from "./component/page/graphql";
+import { Home } from "./component/page/home";
 import { SignIn } from "./component/page/sign-in";
+import { SignUp } from "./component/page/sign-up";
 import { useAuthContext } from "./hook/auth-context";
 
 import {
@@ -11,8 +14,6 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
-import { Home } from "./component/page/home";
-import { Graphql } from "./component/page/graphql";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/graphql" element={<Graphql />} />
         </Route>
         <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
         <Route path="/error" element={<div>404</div>} />
         <Route path="*" element={<Navigate to="/error" />} />
       </Routes>

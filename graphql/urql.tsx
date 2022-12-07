@@ -32,6 +32,8 @@ export type Mutation = {
   search: Array<Service>;
   servicesWithTags: Array<Service>;
   signIn: Scalars['String'];
+  signUp: User;
+  temp: Scalars['Boolean'];
   updateProfile: Profile;
   updateProfileField: ProfileField;
   updateService: Service;
@@ -124,6 +126,18 @@ export type MutationSignInArgs = {
 };
 
 
+export type MutationSignUpArgs = {
+  adminPassword: Scalars['String'];
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
+
+export type MutationTempArgs = {
+  title: Scalars['String'];
+};
+
+
 export type MutationUpdateProfileArgs = {
   profileId: Scalars['Int'];
   title: Scalars['String'];
@@ -208,6 +222,12 @@ export type Tag = {
   title: Scalars['String'];
 };
 
+export type User = {
+  __typename?: 'User';
+  id: Scalars['ID'];
+  username: Scalars['ID'];
+};
+
 export type ServicesWithTagsMutationVariables = Exact<{
   tags: Array<Scalars['String']> | Scalars['String'];
   mode: Scalars['String'];
@@ -223,6 +243,15 @@ export type SignInMutationVariables = Exact<{
 
 
 export type SignInMutation = { __typename?: 'Mutation', signIn: string };
+
+export type SignUpMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+  adminPassword: Scalars['String'];
+}>;
+
+
+export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'User', id: string, username: string } };
 
 
 export const ServicesWithTagsDocument = gql`
@@ -263,4 +292,16 @@ export const SignInDocument = gql`
 
 export function useSignInMutation() {
   return Urql.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument);
+};
+export const SignUpDocument = gql`
+    mutation signUp($username: String!, $password: String!, $adminPassword: String!) {
+  signUp(username: $username, password: $password, adminPassword: $adminPassword) {
+    id
+    username
+  }
+}
+    `;
+
+export function useSignUpMutation() {
+  return Urql.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument);
 };

@@ -1,12 +1,13 @@
 import Fuse from "fuse.js";
+import { graphql } from "@glaurung/graphql/gql";
+import { useEffect, useState } from "react";
+
 import {
   Profile,
   ProfileField,
   Service,
   useServicesWithTagsMutation,
 } from "@glaurung/graphql/urql";
-import { graphql } from "@glaurung/graphql/gql";
-import { useEffect, useState } from "react";
 
 graphql(`
   mutation servicesWithTags($tags: [String!]!, $mode: String!) {

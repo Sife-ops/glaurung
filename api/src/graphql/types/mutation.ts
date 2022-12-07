@@ -7,6 +7,7 @@ import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
 import { faker } from "@faker-js/faker";
 import { sign } from "jsonwebtoken";
+import { UserType } from "./user";
 
 const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
 
@@ -34,6 +35,42 @@ builder.mutationFields((t) => ({
         // todo: token options
         expiresIn: "7d",
       });
+    },
+  }),
+
+  signUp: t.field({
+    type: UserType,
+    args: {
+      username: t.arg.string({ required: true }),
+      password: t.arg.string({ required: true }),
+      adminPassword: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      const adminUser = await ctx.db
+        .selectFrom("user")
+        .where("user.username", "=", "admin")
+        .selectAll()
+        .executeTakeFirstOrThrow();
+      if (!compareSync(args.adminPassword, adminUser.password)) {
+        throw new Error("incorrect password");
+      }
+      const found = await ctx.db
+        .selectFrom("user")
+        .where("user.username", "=", args.username)
+        .selectAll()
+        .executeTakeFirst();
+      if (found) {
+        throw new Error("username already exists");
+      }
+      const created = await ctx.db
+        .insertInto("user")
+        .values({
+          username: args.username,
+          password: hashSync(args.password),
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+      return created;
     },
   }),
 
