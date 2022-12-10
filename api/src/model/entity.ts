@@ -16,8 +16,8 @@ export interface ServiceField {
   id: Generated<number>;
   serviceId: number;
   key: string;
-  // todo: type
   value: string;
+  type: string;
 }
 
 export interface ServiceTag {
@@ -43,4 +43,5 @@ export interface ProfileField {
   profileId: number;
   key: string;
   value: string;
+  type: string;
 }

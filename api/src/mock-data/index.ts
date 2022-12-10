@@ -36,6 +36,7 @@ const db = database({ fileMustExist: true });
       id: 1,
       serviceId: 1,
       key: "url",
+      type: "url",
       value: "https://gmail.com",
     })
     .execute();
@@ -100,6 +101,7 @@ const db = database({ fileMustExist: true });
       id: 1,
       profileId: 1,
       key: "username",
+      type: "text",
       value: "mockdata@gmail.com",
     })
     .execute();
@@ -110,6 +112,7 @@ const db = database({ fileMustExist: true });
       id: 2,
       profileId: 1,
       key: "password",
+      type: "text",
       value: "pass",
     })
     .execute();

@@ -1,4 +1,4 @@
-import { Kysely, sql } from "kysely";
+import { Kysely } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -48,23 +48,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("title", "varchar", (col) => col.notNull())
     .execute();
 
-  // await db.schema
-  //   .createTable("serviceProfile")
-  //   .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-  //   .addColumn("serviceId", "integer", (col) =>
-  //     col.references("service.id").onDelete("cascade").notNull()
-  //   )
-  //   .addColumn("profileId", "integer", (col) =>
-  //     col.references("profile.id").onDelete("cascade").notNull()
-  //   )
-  //   .execute();
-
   await db.schema
     .createTable("profile")
     .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
-    // .addColumn("userId", "integer", (col) =>
-    //   col.references("user.id").onDelete("cascade").notNull()
-    // )
     .addColumn("serviceId", "integer", (col) =>
       col.references("service.id").onDelete("cascade").notNull()
     )
@@ -83,7 +69,12 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  // await db.schema.dropTable("pet").execute();
   // todo: down
-  // await db.schema.dropTable("user").execute();
+  await db.schema.dropTable("profileField").execute();
+  await db.schema.dropTable("profile").execute();
+  await db.schema.dropTable("tag").execute();
+  await db.schema.dropTable("serviceTag").execute();
+  await db.schema.dropTable("serviceField").execute();
+  await db.schema.dropTable("service").execute();
+  await db.schema.dropTable("user").execute();
 }

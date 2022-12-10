@@ -10,6 +10,7 @@ ProfileFieldType.implement({
     profileId: t.exposeInt("profileId"),
     key: t.exposeString("key"),
     value: t.exposeString("value"),
+    type: t.exposeString("type"),
   }),
 });
 

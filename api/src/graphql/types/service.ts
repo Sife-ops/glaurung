@@ -12,6 +12,7 @@ ServiceFieldType.implement({
     serviceId: t.exposeInt("serviceId"),
     key: t.exposeString("key"),
     value: t.exposeString("value"),
+    type: t.exposeString("type"),
   }),
 });
 

@@ -18,6 +18,7 @@ graphql(`
         id
         key
         value
+        type
       }
       profiles {
         id
@@ -26,6 +27,7 @@ graphql(`
           id
           key
           value
+          type
         }
       }
       tags {
@@ -135,31 +137,9 @@ export const Home = () => {
                 <div>title: {service.title}</div>
 
                 {service.fields.length > 0 &&
-                  service.fields.map((field) => {
-                    if (field.key === "url") {
-                      return (
-                        <div
-                          key={field.id}
-                          style={{
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {field.key} ({field.id}):{" "}
-                          <a href={field.value} target={"_blank"}>
-                            {field.value}
-                          </a>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div key={field.id}>
-                          {field.key} ({field.id}): {field.value}
-                        </div>
-                      );
-                    }
-                  })}
+                  service.fields.map((field) => (
+                    <Field field={field} key={field.id} />
+                  ))}
               </div>
               <div>
                 <div
@@ -233,13 +213,19 @@ const Fields: React.FC<{ fields: ProfileField[] }> = (p) => {
   }
 };
 
-const Field: React.FC<{ field: ProfileField }> = (p) => {
+const Field: React.FC<{
+  field: { id: string; key: string; value: string; type: string };
+}> = (p) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const isPassword = p.field.key === "password";
-
   return (
-    <div>
+    <div
+      style={{
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
       {p.field.key} ({p.field.id}):{" "}
       <span
         style={{
@@ -248,18 +234,25 @@ const Field: React.FC<{ field: ProfileField }> = (p) => {
         onClick={() => navigator.clipboard.writeText(p.field.value)}
       >
         {(() => {
-          if (isPassword) {
-            if (showPassword) {
+          switch (p.field.type) {
+            case "password":
+              if (showPassword) {
+                return p.field.value;
+              } else {
+                return "****************";
+              }
+            case "url":
+              return (
+                <a href={p.field.value} target={"_blank"}>
+                  {p.field.value}
+                </a>
+              );
+            default:
               return p.field.value;
-            } else {
-              return "****************";
-            }
-          } else {
-            return p.field.value;
           }
         })()}
       </span>{" "}
-      {isPassword && (
+      {p.field.type === "password" && (
         <button onClick={() => setShowPassword((s) => !s)}>show</button>
       )}
     </div>

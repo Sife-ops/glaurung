@@ -1,25 +1,50 @@
-import { Kysely, sql } from "kysely";
+import { Kysely } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
-  //   await db.schema
-  //     .createTable("user")
-  //     .addColumn("id", "serial", (col) => col.primaryKey())
-  // .addColumn("first_name", "varchar", (col) => col.notNull())
-  // .addColumn("last_name", "varchar")
-  // .addColumn("gender", "varchar(50)", (col) => col.notNull())
-  // .addColumn("created_at", "timestamp", (col) =>
-  //   col.defaultTo(sql`now()`).notNull()
-  // )
-  // .execute();
+  await db.schema
+    .alterTable("serviceField")
+    .addColumn("type", "varchar", (col) => col.notNull().defaultTo("text"))
+    .execute();
+  const a = await db.selectFrom("serviceField").selectAll().execute();
+  for (const b of a) {
+    if (b.key === "password") {
+      await db
+        .updateTable("serviceField")
+        .set({ type: "password" })
+        .where("id", "=", b.id)
+        .execute();
+    } else if (b.key === "url") {
+      await db
+        .updateTable("serviceField")
+        .set({ type: "url" })
+        .where("id", "=", b.id)
+        .execute();
+    }
+  }
 
-  // await db.schema
-  //   .createIndex("pet_owner_id_index")
-  //   .on("pet")
-  //   .column("owner_id")
-  //   .execute();
+  await db.schema
+    .alterTable("profileField")
+    .addColumn("type", "varchar", (col) => col.notNull().defaultTo("text"))
+    .execute();
+  const c = await db.selectFrom("profileField").selectAll().execute();
+  for (const d of c) {
+    if (d.key === "password") {
+      await db
+        .updateTable("profileField")
+        .set({ type: "password" })
+        .where("id", "=", d.id)
+        .execute();
+    } else if (d.key === "url") {
+      await db
+        .updateTable("profileField")
+        .set({ type: "url" })
+        .where("id", "=", d.id)
+        .execute();
+    }
+  }
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  // await db.schema.dropTable("pet").execute();
-  await db.schema.dropTable("service").execute();
+  await db.schema.alterTable("profileField").dropColumn("type").execute();
+  await db.schema.alterTable("serviceField").dropColumn("type").execute();
 }
