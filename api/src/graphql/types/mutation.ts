@@ -341,6 +341,7 @@ builder.mutationFields((t) => ({
       serviceId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
+      type: t.arg.string({ required: true }),
     },
     resolve: async (_, args, ctx) => {
       const found = await ctx.db
@@ -356,23 +357,26 @@ builder.mutationFields((t) => ({
           serviceId: args.serviceId,
           key: args.key,
           value: args.value,
+          type: args.type,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
     },
   }),
 
+  // todo: merge with existing
   updateServiceField: t.field({
     type: ServiceFieldType,
     args: {
       serviceFieldId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
+      type: t.arg.string({ required: true }),
     },
     resolve: (_, args, ctx) =>
       ctx.db
         .updateTable("serviceField")
-        .set({ key: args.key, value: args.value })
+        .set({ key: args.key, value: args.value, type: args.type })
         .where("serviceField.id", "=", args.serviceFieldId)
         .returningAll()
         .executeTakeFirstOrThrow(),
@@ -455,6 +459,7 @@ builder.mutationFields((t) => ({
       profileId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
+      type: t.arg.string({ required: true }),
     },
     resolve: async (_, args, ctx) => {
       const found = await ctx.db
@@ -476,6 +481,7 @@ builder.mutationFields((t) => ({
           profileId: args.profileId,
           key: args.key,
           value,
+          type: args.type,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -488,11 +494,12 @@ builder.mutationFields((t) => ({
       profileFieldId: t.arg.int({ required: true }),
       key: t.arg.string({ required: true }),
       value: t.arg.string({ required: true }),
+      type: t.arg.string({ required: true }),
     },
     resolve: async (_, args, ctx) =>
       ctx.db
         .updateTable("profileField")
-        .set({ key: args.key, value: args.value })
+        .set({ key: args.key, value: args.value, type: args.type })
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
         .executeTakeFirstOrThrow(),
@@ -569,6 +576,7 @@ builder.mutationFields((t) => ({
               profileId: profile.id,
               key: "username",
               value: username,
+              type: "text",
             })
             .execute();
 
@@ -578,6 +586,7 @@ builder.mutationFields((t) => ({
               profileId: profile.id,
               key: "password",
               value: password,
+              type: "password",
             })
             .execute();
 
@@ -605,6 +614,7 @@ builder.mutationFields((t) => ({
               serviceId: service.id,
               key: "url",
               value: url.uri,
+              type: "url",
             })
             .execute();
         }
@@ -616,6 +626,7 @@ builder.mutationFields((t) => ({
               serviceId: service.id,
               key: "notes",
               value: login.notes,
+              type: "text",
             })
             .execute();
         }
@@ -635,6 +646,7 @@ builder.mutationFields((t) => ({
             profileId: profile.id,
             key: "username",
             value: username,
+            type: "text",
           })
           .execute();
 
@@ -644,6 +656,7 @@ builder.mutationFields((t) => ({
             profileId: profile.id,
             key: "password",
             value: password,
+            type: "password",
           })
           .execute();
       }
