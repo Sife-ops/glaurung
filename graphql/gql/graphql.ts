@@ -14,6 +14,12 @@ export type Scalars = {
   Float: number;
 };
 
+export type CreateFieldInput = {
+  key: Scalars['String'];
+  type: Scalars['String'];
+  value: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: Scalars['Boolean'];
@@ -54,10 +60,8 @@ export type MutationCreateProfileArgs = {
 
 
 export type MutationCreateProfileFieldArgs = {
-  key: Scalars['String'];
+  field: CreateFieldInput;
   profileId: Scalars['Int'];
-  type: Scalars['String'];
-  value: Scalars['String'];
 };
 
 
@@ -67,10 +71,8 @@ export type MutationCreateServiceArgs = {
 
 
 export type MutationCreateServiceFieldArgs = {
-  key: Scalars['String'];
+  field: CreateFieldInput;
   serviceId: Scalars['Int'];
-  type: Scalars['String'];
-  value: Scalars['String'];
 };
 
 
@@ -146,10 +148,8 @@ export type MutationUpdateProfileArgs = {
 
 
 export type MutationUpdateProfileFieldArgs = {
-  key: Scalars['String'];
+  field: UpdateFieldInput;
   profileFieldId: Scalars['Int'];
-  type: Scalars['String'];
-  value: Scalars['String'];
 };
 
 
@@ -160,10 +160,8 @@ export type MutationUpdateServiceArgs = {
 
 
 export type MutationUpdateServiceFieldArgs = {
-  key: Scalars['String'];
+  field: UpdateFieldInput;
   serviceFieldId: Scalars['Int'];
-  type: Scalars['String'];
-  value: Scalars['String'];
 };
 
 
@@ -225,6 +223,12 @@ export type Tag = {
   id: Scalars['ID'];
   services: Array<Service>;
   title: Scalars['String'];
+};
+
+export type UpdateFieldInput = {
+  key?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
 };
 
 export type User = {

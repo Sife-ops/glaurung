@@ -3,18 +3,7 @@ import { Row } from "../../model/database";
 import { TagType } from "./tag";
 import { builder } from "../builder";
 import { mapDataToIds } from "./common";
-
-export const ServiceFieldType =
-  builder.objectRef<Row["serviceField"]>("ServiceField");
-ServiceFieldType.implement({
-  fields: (t) => ({
-    id: t.exposeID("id"),
-    serviceId: t.exposeInt("serviceId"),
-    key: t.exposeString("key"),
-    value: t.exposeString("value"),
-    type: t.exposeString("type"),
-  }),
-});
+import { ServiceFieldType } from "./field";
 
 export const ServiceType = builder.objectRef<Row["service"]>("Service");
 ServiceType.implement({

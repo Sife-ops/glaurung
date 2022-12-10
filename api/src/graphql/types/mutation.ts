@@ -1,13 +1,21 @@
 import Fuse from "fuse.js";
 import lodash from "lodash";
-import { ProfileFieldType, ProfileType } from "./profile";
-import { ServiceFieldType, ServiceType } from "./service";
+import { ProfileType } from "./profile";
+import { ServiceType } from "./service";
 import { TagType } from "./tag";
 import { builder } from "../builder";
 import { compareSync, hashSync } from "bcryptjs";
 import { faker } from "@faker-js/faker";
 import { sign } from "jsonwebtoken";
 import { UserType } from "./user";
+
+import {
+  ProfileFieldType,
+  ServiceFieldType,
+  CreateFieldInputType,
+  UpdateFieldInputType,
+  defaultToUndefined,
+} from "./field";
 
 const accessTokenSecret = process.env.GLAURUNG_ACCESS_TOKEN_SECRET || "local";
 
@@ -281,6 +289,39 @@ builder.mutationFields((t) => ({
     },
   }),
 
+  temp: t.boolean({
+    args: {
+      title: t.arg.string({ required: true }),
+    },
+    resolve: async (_, args, ctx) => {
+      await ctx.db.transaction().execute(async (trx) => {
+        const found = await trx
+          .selectFrom("service")
+          .where("service.userId", "=", ctx.user.id)
+          .where("service.title", "=", args.title)
+          .selectAll()
+          .executeTakeFirst();
+
+        console.log("something");
+        await trx
+          .insertInto("service")
+          .values({ title: "toberolledback", userId: ctx.user.id })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+
+        if (found) throw new Error("duplicate service title");
+
+        await trx
+          .insertInto("service")
+          .values({ title: args.title, userId: ctx.user.id })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+      });
+
+      return true;
+    },
+  }),
+
   createService: t.field({
     type: ServiceType,
     args: {
@@ -335,19 +376,19 @@ builder.mutationFields((t) => ({
   //////////////////////////////////////////////////////////////////////////////
 
   createServiceField: t.field({
-    // todo: use service field type
     type: ServiceFieldType,
     args: {
       serviceId: t.arg.int({ required: true }),
-      key: t.arg.string({ required: true }),
-      value: t.arg.string({ required: true }),
-      type: t.arg.string({ required: true }),
+      field: t.arg({
+        type: CreateFieldInputType,
+        required: true,
+      }),
     },
     resolve: async (_, args, ctx) => {
       const found = await ctx.db
         .selectFrom("serviceField")
         .where("serviceField.serviceId", "=", args.serviceId)
-        .where("serviceField.key", "=", args.key)
+        .where("serviceField.key", "=", args.field.key)
         .selectAll()
         .executeTakeFirst();
       if (found) throw new Error("duplicate serviceField key");
@@ -355,9 +396,7 @@ builder.mutationFields((t) => ({
         .insertInto("serviceField")
         .values({
           serviceId: args.serviceId,
-          key: args.key,
-          value: args.value,
-          type: args.type,
+          ...args.field,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -369,14 +408,15 @@ builder.mutationFields((t) => ({
     type: ServiceFieldType,
     args: {
       serviceFieldId: t.arg.int({ required: true }),
-      key: t.arg.string({ required: true }),
-      value: t.arg.string({ required: true }),
-      type: t.arg.string({ required: true }),
+      field: t.arg({
+        type: UpdateFieldInputType,
+        required: true,
+      }),
     },
     resolve: (_, args, ctx) =>
       ctx.db
         .updateTable("serviceField")
-        .set({ key: args.key, value: args.value, type: args.type })
+        .set(defaultToUndefined(args.field))
         .where("serviceField.id", "=", args.serviceFieldId)
         .returningAll()
         .executeTakeFirstOrThrow(),
@@ -457,31 +497,31 @@ builder.mutationFields((t) => ({
     type: ProfileFieldType,
     args: {
       profileId: t.arg.int({ required: true }),
-      key: t.arg.string({ required: true }),
-      value: t.arg.string({ required: true }),
-      type: t.arg.string({ required: true }),
+      field: t.arg({
+        type: CreateFieldInputType,
+        required: true,
+      }),
     },
     resolve: async (_, args, ctx) => {
       const found = await ctx.db
         .selectFrom("profileField")
         .where("profileField.profileId", "=", args.profileId)
-        .where("profileField.key", "=", args.key)
+        .where("profileField.key", "=", args.field.key)
         .selectAll()
         .executeTakeFirst();
       if (found) throw new Error("duplicate profileField key");
       let value: string = "";
-      if (args.key === "password" && !args.value) {
+      if (args.field.key === "password" && !args.field.value) {
         value = faker.internet.password(16);
       } else {
-        value = args.value;
+        value = args.field.value;
       }
       return await ctx.db
         .insertInto("profileField")
         .values({
           profileId: args.profileId,
-          key: args.key,
+          ...args.field,
           value,
-          type: args.type,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -492,14 +532,15 @@ builder.mutationFields((t) => ({
     type: ProfileFieldType,
     args: {
       profileFieldId: t.arg.int({ required: true }),
-      key: t.arg.string({ required: true }),
-      value: t.arg.string({ required: true }),
-      type: t.arg.string({ required: true }),
+      field: t.arg({
+        type: UpdateFieldInputType,
+        required: true,
+      }),
     },
     resolve: async (_, args, ctx) =>
       ctx.db
         .updateTable("profileField")
-        .set({ key: args.key, value: args.value, type: args.type })
+        .set(defaultToUndefined(args.field))
         .where("profileField.id", "=", args.profileFieldId)
         .returningAll()
         .executeTakeFirstOrThrow(),
