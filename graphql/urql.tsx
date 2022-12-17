@@ -39,7 +39,6 @@ export type Mutation = {
   servicesWithTags: Array<Service>;
   signIn: Scalars['String'];
   signUp: User;
-  temp: Scalars['Boolean'];
   updateProfile: Profile;
   updateProfileField: ProfileField;
   updateService: Service;
@@ -134,11 +133,6 @@ export type MutationSignUpArgs = {
   adminPassword: Scalars['String'];
   password: Scalars['String'];
   username: Scalars['String'];
-};
-
-
-export type MutationTempArgs = {
-  title: Scalars['String'];
 };
 
 

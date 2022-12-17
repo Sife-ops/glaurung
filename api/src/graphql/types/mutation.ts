@@ -127,11 +127,12 @@ builder.mutationFields((t) => ({
       tagId: t.arg.int({ required: true }),
       title: t.arg.string({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .updateTable("tag")
         .set({ title: args.title })
         .where("tag.id", "=", args.tagId)
+        .where("tag.userId", "=", ctx.user.id)
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -141,10 +142,11 @@ builder.mutationFields((t) => ({
     args: {
       tagId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .deleteFrom("tag") //
         .where("tag.id", "=", args.tagId)
+        .where("tag.userId", "=", ctx.user.id)
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -162,8 +164,10 @@ builder.mutationFields((t) => ({
     resolve: async (_, args, ctx) => {
       await ctx.db
         .deleteFrom("serviceTag")
+        .innerJoin("service", "service.id", "serviceTag.id")
         .where("serviceTag.serviceId", "=", args.serviceId)
-        .execute();
+        .where("service.userId", "=", ctx.user.id)
+        .executeTakeFirstOrThrow();
 
       if (args.tags.length > 0) {
         for (const tag of args.tags) {
@@ -354,6 +358,7 @@ builder.mutationFields((t) => ({
         .updateTable("service")
         .set({ title: args.title })
         .where("service.id", "=", args.serviceId)
+        .where("service.userId", "=", ctx.user.id)
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -365,8 +370,9 @@ builder.mutationFields((t) => ({
     },
     resolve: async (_, args, ctx) =>
       ctx.db
-        .deleteFrom("service") //
+        .deleteFrom("service")
         .where("service.id", "=", args.serviceId)
+        .where("service.userId", "=", ctx.user.id)
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -403,7 +409,6 @@ builder.mutationFields((t) => ({
     },
   }),
 
-  // todo: merge with existing
   updateServiceField: t.field({
     type: ServiceFieldType,
     args: {
@@ -418,6 +423,17 @@ builder.mutationFields((t) => ({
         .updateTable("serviceField")
         .set(defaultToUndefined(args.field))
         .where("serviceField.id", "=", args.serviceFieldId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("serviceField")
+              .innerJoin("service", "service.id", "serviceField.serviceId")
+              .where("serviceField.id", "=", args.serviceFieldId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -427,10 +443,21 @@ builder.mutationFields((t) => ({
     args: {
       serviceFieldId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .deleteFrom("serviceField")
         .where("serviceField.id", "=", args.serviceFieldId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("serviceField")
+              .innerJoin("service", "service.id", "serviceField.serviceId")
+              .where("serviceField.id", "=", args.serviceFieldId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -467,11 +494,22 @@ builder.mutationFields((t) => ({
       profileId: t.arg.int({ required: true }),
       title: t.arg.string({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .updateTable("profile")
-        .set({ title: args.title })
         .where("profile.id", "=", args.profileId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("profile")
+              .innerJoin("service", "service.id", "profile.serviceId")
+              .where("profile.id", "=", args.profileId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
+        .set({ title: args.title })
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -481,10 +519,21 @@ builder.mutationFields((t) => ({
     args: {
       profileId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .deleteFrom("profile") //
         .where("profile.id", "=", args.profileId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("profile")
+              .innerJoin("service", "service.id", "profile.serviceId")
+              .where("profile.id", "=", args.profileId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -503,19 +552,25 @@ builder.mutationFields((t) => ({
       }),
     },
     resolve: async (_, args, ctx) => {
+      // todo: couldn't figure out how to add unique constraint
       const found = await ctx.db
         .selectFrom("profileField")
         .where("profileField.profileId", "=", args.profileId)
         .where("profileField.key", "=", args.field.key)
         .selectAll()
         .executeTakeFirst();
-      if (found) throw new Error("duplicate profileField key");
+
+      if (found) {
+        throw new Error("duplicate profileField key");
+      }
+
       let value: string = "";
       if (args.field.key === "password" && !args.field.value) {
         value = faker.internet.password(16);
       } else {
         value = args.field.value;
       }
+
       return await ctx.db
         .insertInto("profileField")
         .values({
@@ -537,11 +592,23 @@ builder.mutationFields((t) => ({
         required: true,
       }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .updateTable("profileField")
         .set(defaultToUndefined(args.field))
         .where("profileField.id", "=", args.profileFieldId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("profileField")
+              .innerJoin("profile", "profile.id", "profileField.profileId")
+              .innerJoin("service", "service.id", "profile.serviceId")
+              .where("profileField.id", "=", args.profileFieldId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
@@ -551,10 +618,22 @@ builder.mutationFields((t) => ({
     args: {
       profileFieldId: t.arg.int({ required: true }),
     },
-    resolve: async (_, args, ctx) =>
+    resolve: (_, args, ctx) =>
       ctx.db
         .deleteFrom("profileField") //
         .where("profileField.id", "=", args.profileFieldId)
+        .where(
+          (qb) =>
+            qb
+              .selectFrom("profileField")
+              .innerJoin("profile", "profile.id", "profileField.profileId")
+              .innerJoin("service", "service.id", "profile.serviceId")
+              .where("profileField.id", "=", args.profileFieldId)
+              .select("service.userId")
+              .limit(1),
+          "=",
+          ctx.user.id
+        )
         .returningAll()
         .executeTakeFirstOrThrow(),
   }),
